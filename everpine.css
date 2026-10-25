@@ -353,6 +353,70 @@ content::-webkit-scrollbar-track {
   background-color: rgb(167 192 128 / 60%);
 }
 
+/* 侧边栏滚动条与正文分档，两个标签页各滚各的容器（均已用滑块涂色取证）：
+   文件树页的滚动条长在 #file-library 上（树以它为滚动祖先，纵向出条），
+   .sidebar-content 只在横向溢出时出条；两者一并三态隐现：平时透明，
+   鼠标进入侧栏内容区显现 45%（与正文常显档同色），悬停滑块加深到 60%；
+   目录页滚在 #outline-content 自己身上（.outline-content 类自带
+   overflow-y:auto），宽高归零彻底隐藏（内容少，长滑块不承载位置信息，
+   归零后条目宽出 8px，也不再在溢出临界点跳动） */
+#typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb,
+#typora-sidebar #file-library::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+#typora-sidebar.active-tab-files .sidebar-content:hover::-webkit-scrollbar-thumb,
+#typora-sidebar #file-library:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(167 192 128 / 45%);
+}
+
+#typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb:hover,
+#typora-sidebar #file-library::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(167 192 128 / 60%);
+}
+
+/* 悬停滑块视觉收细到 5px：左右各 1px 透明边框加背景裁剪内缩，
+   槽位与滑块几何不动，颜色只画进 5px 内区（仅纵向滑块收细） */
+#typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb:hover,
+#typora-sidebar #file-library::-webkit-scrollbar-thumb:hover {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+#typora-sidebar #outline-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 槽位整体收到 7px：比正文的 8px 细 1px，两档滑块随之都比正文细一档，
+   不走透明边框内缩，宽度恒定无跳变 */
+#typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar,
+#typora-sidebar #file-library::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+/* 隐藏文件页横向滚动条并常驻预留纵向槽位：
+   树已锁 100% 宽永不横滚，横条只在重建瞬间闪现
+   （整树清空一帧，纵向条消失使内容区瞬宽 7px，树按宽帧布局后
+   纵向条回来、宽度收回，横条随即消失，即点击后底部闪过的绿条）；
+   scrollbar-gutter 常驻预留后宽度不再抖动，横条连闪现条件一并消除 */
+#typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar:horizontal,
+#typora-sidebar #file-library::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
+#typora-sidebar #file-library {
+  scrollbar-gutter: stable;
+}
+
+/* 悬停时保留底部内边距：原生为给横条腾位把它收为 0，
+   鼠标进出侧栏会竖向抖 8px；横条已隐藏，内边距保持恒定 */
+#typora-sidebar #sidebar-content:hover #file-library {
+  padding-bottom: 8px;
+}
+
 /* --------------------------------------------------------------------------
    标题：h2 起为章级，色相各司其职，亮度随层级递减
    h2 绿 → h3 青 → h4 紫 → h5 橙 → h6 灰绿小标签
@@ -535,7 +599,8 @@ content::-webkit-scrollbar-track {
   width: 30px;
   height: 26px;
   padding: 0;
-  color: var(--ep-text-secondary);
+  /* 常态红：正文卡底 #111513 比浮层更深，同档红对比更高直接通用 */
+  color: #ca7a7a;
   line-height: 1;
   background: transparent;
   border: 1px solid transparent;
@@ -555,9 +620,9 @@ content::-webkit-scrollbar-track {
 
 #write .md-toc-tooltip .btn.md-delete-toc:hover,
 #write .md-toc-tooltip .btn.md-delete-toc:focus {
-  color: var(--ep-red);
-  background: rgb(202 122 122 / 12%);
-  border-color: rgb(202 122 122 / 20%);
+  color: #e8a7a7;
+  background: rgb(202 122 122 / 16%);
+  border-color: rgb(202 122 122 / 26%);
   outline: none;
 }
 
@@ -1050,6 +1115,23 @@ blockquote {
 
 #write .ty-table-edit button:active {
   transform: translateY(0) scale(0.94);
+}
+
+/* 表格工具条删除键：常态红图标提前警示（工具条底 rgb(30 37 33 / 94%)
+   与菜单浮层同档，红档通用），悬停红染浮起，按压红加深 */
+#write .ty-table-edit .md-delete-table {
+  color: #ca7a7a;
+}
+
+#write .ty-table-edit .md-delete-table:hover {
+  color: #e8a7a7;
+  background: rgb(202 122 122 / 16%);
+  border-color: rgb(202 122 122 / 26%);
+}
+
+#write .ty-table-edit .md-delete-table:active {
+  color: #efb5b5;
+  background: rgb(202 122 122 / 22%);
 }
 
 #write .ty-table-edit button:focus-visible {
@@ -2159,40 +2241,85 @@ input[type='radio']:checked::after {
   overflow: hidden;
 }
 
-/* 文件树：只保留当前文件行底色（原生 active）+ hover 跟随高亮；
-   无任何常显文件夹淡底 */
+/* 文件树：当前文件行保留底色（原生 active）与 4px 绿竖条，其余行无任何底色；
+   当前行用 20% active-green（原生 #1e2521 与旧悬停 10% 绿只差 5 个灰阶）。
+   不写 !important：important 作者声明在层叠中位于 animation 之上，
+   会挡掉下方入场关键帧；主题链在原生样式之后，同权重即胜出 */
 .file-library-node.active > .file-node-background,
 .file-tree-node.active > .file-node-background {
-  background-color: var(--active-file-bg-color) !important;
+  background-color: var(--ep-active-green);
   border-radius: var(--ep-radius-tip);
+  animation: ep-active-bg-in 200ms var(--ep-ease);
 }
 
-/* 文件树选项悬停：绿微光底 + 绿字 + 圆角（跟随光标） */
-.file-library-node:hover > .file-node-background {
-  background-color: var(--ep-hover-green);
-  border-radius: var(--ep-radius-tip);
+/* 行底色基线态：显式 0 宽透明边框，离场过渡两端值确定；
+   transition 只服务离场（类移除路径），见下方关键帧说明 */
+.file-library-node > .file-node-background,
+.file-tree-node > .file-node-background {
+  border-left: 0 solid transparent;
+  transition: background-color 200ms var(--ep-ease),
+    border-left-width 200ms var(--ep-ease);
 }
 
+/* 选中切换入场（底色淡入加竖条生长）必须用关键帧而非过渡：
+   Typora 切换文件时会把行节点整个重建（replaceWith 重渲染），
+   新行是带 .active 插入的全新元素，transition 对插入元素不触发，
+   animation 对插入与类添加两条路径都会播放；
+   旧行淡出仅在类移动路径生效，重建路径旧行被直接移除，
+   已移除元素纯 CSS 无法做出场动画 */
+@keyframes ep-active-bg-in {
+  from {
+    background-color: transparent;
+    border-left-width: 0;
+  }
+}
+
+/* 选中切换动画二（新行入场脉冲）：
+   新 active 行内容播一次 12px 绿光晕并自 1.02 回落归位，
+   只写 from 帧，to 帧取计算值，悬停中的位移与光晕自然衔接 */
+@keyframes ep-active-in {
+  from {
+    text-shadow: 0 0 12px rgb(167 192 128 / 65%);
+    transform: scale(1.02);
+  }
+}
+
+.file-library-node.active > .file-node-content,
+.file-tree-node.active > .file-node-content {
+  animation: ep-active-in 250ms var(--ep-ease-out);
+}
+
+/* 行悬停：无底色、无竖条，亮绿字 + 上浮 1px + 极淡绿光晕；
+   悬停竖条无主流产品先例（竖条是选中态语言），调研后弃用 */
 .file-library-node:hover > .file-node-content,
 .file-library-file-node:hover > .file-node-content {
   color: var(--ep-green-bright);
+  transform: translateY(-1px);
+  text-shadow: 0 0 8px rgb(167 192 128 / 25%);
 }
 
-/* 目录条目按压（行式条目专用轻压设计）：
-   底色在悬停基础上加深一档，内容以左锚点微缩 0.99，
-   压下即时、松开缓出；不做整行缩放，密集列表不抖动 */
+/* 当前文件路径链：active 文件的全部祖先文件夹行（含根）常显绿字，
+   无底色、无常驻浮起；:where 归零权重，悬停亮绿档仍能盖过链路色 */
+:where(.file-tree-node:has(> .file-node-children .file-library-node.active)) > .file-node-content {
+  color: var(--ep-green);
+}
+
+/* 按压（无底色）：按回下沉 + 微缩 + 光晕收聚。
+   悬停浮起 -1px，按压压到 +1px 越过原位，浮起与按回成物理对仗；
+   光晕由 8px 漫射收聚为 3px 实亮。压下 100ms 即时，
+   松手 240ms 带轻微回弹，该过渡同时服务悬停浮起的回落 */
 .file-library-node > .file-node-content {
   transform-origin: 0 50%;
-  transition: transform 150ms var(--ep-ease-out);
-}
-
-.file-library-node:active > .file-node-background {
-  background-color: rgb(167 192 128 / 14%);
-  border-radius: var(--ep-radius-tip);
+  transition: transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    color var(--ep-speed) var(--ep-ease),
+    text-shadow var(--ep-speed) var(--ep-ease);
 }
 
 .file-library-node:active > .file-node-content {
-  transform: scale(0.99);
+  transform: translateY(1px) scale(0.98);
+  text-shadow: 0 0 3px rgb(167 192 128 / 55%);
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
 }
 
 /* 文件树字号 14px → 15px（行高同步 +2px） */
@@ -2202,8 +2329,89 @@ input[type='radio']:checked::after {
   font-size: 15px;
 }
 
+/* 行底色层与行距同高：内容行 = padding-top 4px + 行高 20px = 26px。
+   底色高于行距时下探压进下一行（32px 时实测下探 6px），
+   按压行与相邻 active 行底色会叠色，active 底色平时也压着下一行顶部 */
 .file-node-background {
-  height: 32px;
+  height: 26px;
+}
+
+/* 长文件名省略号截断：树是 display:table 自动布局，原生按最长标题撑宽
+   整棵树（body 常驻 allow-file-tree-scroll，标题恒为 inline-block 的
+   原子内联，靠树撑宽加悬停横滚展示全名）。锁宽 100% 加固定表格布局后
+   内容不再参与宽度计算，树永不横向溢出，原生悬停横滚随之失效 */
+#file-library-tree {
+  width: 100% !important;
+  table-layout: fixed;
+}
+
+/* 省略号裁在名称段自己身上（Finder 式保扩展名截断）：
+   原生把文件名拆进 name-part 与 ext-part 两个 span，
+   标题改 flex 后名称段收缩出省略号，扩展名段恒不收缩完整可见；
+   文件夹的 ext-part 为空，等效纯名称省略号 */
+#file-library-tree .file-node-title {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#file-library-tree .file-node-title-name-part {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#file-library-tree .file-node-title-ext-part {
+  flex: none;
+}
+
+/* 重命名态仍隐藏标题（本主题 ID 选择器权重更高，须显式重申），
+   并放行裁剪，输入框完整可见 */
+#file-library-tree .file-node-on-edit > .file-node-content > .file-node-title {
+  display: none;
+}
+
+#file-library-tree .file-node-on-edit > .file-node-content {
+  overflow: visible;
+}
+
+#file-library-tree .file-node-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* 原生 32px 为树撑宽预留的死区，收小让省略号贴近行缘 */
+  padding-right: 12px;
+}
+
+/* 行底色右缘内缩 4px：原生 left:0 与 width:100% 并存时按 over-constrained
+   规则忽略 right，需显式 width:auto 才能让 right 生效；内缩后四角
+   4px 圆角完整露出，不再贴合滚动槽直切 */
+#file-library-tree .file-node-background {
+  width: auto;
+  right: 4px;
+}
+
+/* 文件面板列表形态（.file-list-item 卡片行）与树形同一套语言：
+   悬停 10%、当前行 20%、悬停当前行 26%（原生激活行用
+   --active-file-bg-color，与树形同病且无悬停反馈）；
+   卡片圆角加右缘内缩 4px，文件名截断由原生 ellipsis 承担 */
+#file-library .file-list-item {
+  margin-right: 4px;
+  border-radius: var(--ep-radius-tip);
+}
+
+#file-library .file-list-item:hover,
+#file-library .file-list-item.select {
+  background-color: var(--ep-hover-green);
+}
+
+#file-library .file-list-item.active {
+  background-color: var(--ep-active-green);
+}
+
+#file-library .file-list-item.active:hover,
+#file-library .file-list-item.active.select {
+  background-color: rgb(167 192 128 / 26%);
 }
 
 /* 文件/大纲标签：悬停圆角底 + 活动底色；下划线缩放淡入，切换带过渡 */
@@ -2215,6 +2423,7 @@ input[type='radio']:checked::after {
   transition: background-color var(--ep-speed) var(--ep-ease),
     color var(--ep-speed) var(--ep-ease),
     opacity var(--ep-speed) var(--ep-ease),
+    border-radius var(--ep-speed) var(--ep-ease),
     transform var(--ep-speed) var(--ep-ease-out);
 }
 
@@ -2228,7 +2437,8 @@ input[type='radio']:checked::after {
   color: var(--ep-text-secondary);
   font-family: var(--ep-font-ui);
   font-size: 0.82rem;
-  transition: color var(--ep-speed) var(--ep-ease);
+  transition: color var(--ep-speed) var(--ep-ease),
+    opacity var(--ep-speed) var(--ep-ease);
 }
 
 .info-panel-tab:hover .info-panel-tab-title {
@@ -2250,21 +2460,140 @@ input[type='radio']:checked::after {
   border-radius: 2px;
   background: var(--ep-green) !important;
   opacity: 0;
-  transform: scaleX(0);
+  transform: translateX(0) scaleX(0);
   transform-origin: center;
-  transition: transform 0.26s var(--ep-ease-out),
+  transition: transform 300ms var(--ep-ease-out),
     opacity 0.18s var(--ep-ease);
 }
 
 .info-panel-tab:hover .info-panel-tab-border {
   opacity: 0.55;
-  transform: scaleX(0.4);
+  transform: translateX(0) scaleX(0.4);
 }
 
-.active-tab-files #info-panel-tab-file .info-panel-tab-border,
+/* 活动标签绿条：主标签互切保持主题原有的居中缩放生长动画
+   （旧条缩回、新条从中心展开，全部由基础 transform 过渡承担，
+   不加位移动画）；查找两态的滑出与滑回同样只依赖
+   状态规则与基础过渡，与互切动画互不干扰 */
+.active-tab-files #info-panel-tab-file .info-panel-tab-border {
+  opacity: 1;
+  transform: translateX(0) scaleX(1);
+}
+
 .active-tab-outline #info-panel-tab-outline .info-panel-tab-border {
   opacity: 1;
-  transform: scaleX(1);
+  transform: translateX(0) scaleX(1);
+}
+
+/* 查找标签（文件页滚轮上拉与大纲页过滤共用一套）：
+   查找是绝对定位的第三枚标签，落在对面那格的原位
+   （文件页占大纲的格子、大纲页占文件的格子），对面标签
+   保盒子淡出；查找自带 8% 底色、只圆上两角（绿条贴底缘不断开）；
+   宿主绿条不隐藏，由状态规则沿 transform 滑到查找格下，
+   退出摘类时再沿基础过渡滑回宿主；元素常驻渲染树，
+   查找本体只走透明度过渡，浮现与消失双向都有动画；
+   外层容器声明 inline-size 容器，供绿条滑距用 cqw 实时换算 */
+#typora-sidebar .info-panel-tab-wrapper {
+  position: relative;
+  container-type: inline-size;
+}
+
+#typora-sidebar #info-panel-tab-search {
+  display: block;
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-color: rgb(167 192 128 / 8%);
+  border-radius: 8px 8px 0 0;
+  font-weight: normal;
+  animation: none;
+  transition: opacity 240ms var(--ep-ease);
+}
+
+/* 查找的落位由 active-tab 类决定（该类贯穿两态并在退场后仍保留），
+   文件页占大纲的格子、大纲页占文件的格子；
+   不挂在 ty-show-* 上，退场淡出期间查找不跳格 */
+#typora-sidebar.active-tab-files #info-panel-tab-search {
+  left: calc(2 * ((100% - 168px) / 3) + 84px);
+}
+
+#typora-sidebar.active-tab-outline #info-panel-tab-search {
+  left: calc((100% - 168px) / 3);
+}
+
+#typora-sidebar #info-panel-tab-search .info-panel-tab-title {
+  color: var(--ep-text);
+}
+
+/* 绿条由宿主平移提供，查找自带的那条永久隐藏 */
+#typora-sidebar #info-panel-tab-search .info-panel-tab-border {
+  opacity: 0;
+}
+
+/* 两态出场：查找淡入浮现，可悬停 */
+#typora-sidebar.ty-show-search #info-panel-tab-search,
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-search {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 非激活标签退场保盒子：原生 .ty-show-search 把两枚标签整体
+   display:none，盒子一撤占位符重排、激活标签会跳位；改回 block
+   后以透明加延迟隐藏退场，流内占位与常态一致；
+   返回标签不保盒子（保了会把整体挤左 28px），两态都压回 none */
+#typora-sidebar.ty-show-search #info-panel-tab-file,
+#typora-sidebar.ty-show-search #info-panel-tab-outline {
+  display: block;
+}
+
+#typora-sidebar.ty-show-search #info-panel-tab-search-back,
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-search-back {
+  display: none;
+}
+
+#typora-sidebar.ty-show-search #info-panel-tab-outline {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms var(--ep-ease), visibility 0s 200ms;
+}
+
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-file {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms var(--ep-ease), visibility 0s 200ms;
+}
+
+/* 宿主绿条滑到查找格：文件页向右一格、大纲页向左一格，
+   格距公式与标签行容器绑定；两 ID 特异性压过悬停缩放规则，
+   查找在场期间悬停宿主不会把绿条拽回；
+   原生绿条是流内 static，z-index 无效，先转 relative 再提层，
+   绿条盖在查找 8% 底色之上不被罩暗 */
+#typora-sidebar.ty-show-search #info-panel-tab-file .info-panel-tab-border {
+  position: relative;
+  transform: translateX(calc((100cqw - 168px) / 3 + 84px)) scaleX(1);
+  z-index: 1;
+}
+
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-outline .info-panel-tab-border {
+  position: relative;
+  transform: translateX(calc((168px - 100cqw) / 3 - 84px)) scaleX(1);
+  z-index: 1;
+}
+
+/* 宿主底色让位：查找自带 8% 底在对面格，宿主底色退透明，
+   退出随类摘除沿过渡淡回，与绿条滑回归位同步；
+   宿主在两态期间仍可点击返回，透明底规则的特异性会压掉
+   通用悬停底色，这里补回一档悬停反馈 */
+#typora-sidebar.ty-show-search #info-panel-tab-file,
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-outline {
+  background-color: transparent;
+}
+
+#typora-sidebar.ty-show-search #info-panel-tab-file:hover,
+#typora-sidebar.ty-show-outline-filter #info-panel-tab-outline:hover {
+  background-color: rgb(255 255 255 / 5%);
 }
 
 /* 目录底部工具行三态：新建常显；文件夹菜单、列表切换与大纲按钮
@@ -2351,7 +2680,8 @@ li.outline-item-wrapper.outline-h6 > .outline-item > .outline-label {
   color: var(--ep-grey);
 }
 
-/* 大纲选项悬停：绿微光底 + 圆角 + 轻影（原生是顶到两边的通栏） */
+/* 大纲选项悬停：绿微光底 + 圆角；投影走 filter，
+   box-shadow 通道让给高亮闪烁的摘类淡出（见 .blink-area 注释） */
 li.outline-item-wrapper > .outline-item:hover {
   margin-left: 2px;
   margin-right: 2px;
@@ -2359,19 +2689,85 @@ li.outline-item-wrapper > .outline-item:hover {
   border-right: none;
   background-color: var(--ep-hover-green);
   border-radius: var(--ep-radius-chip);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
+  filter: drop-shadow(0 1px 4px rgb(0 0 0 / 25%));
 }
 
 li.outline-item-wrapper > .outline-item {
   transform-origin: 0 50%;
+  /* 基线声明与高亮同几何的透明阴影：摘类淡出时插值只在透明度
+     通道进行；若落到 none，扩散值会同步收缩，洗底会先缩成边框 */
+  box-shadow: inset 0 0 0 1px rgb(167 192 128 / 0%),
+    inset 0 0 0 60px rgb(167 192 128 / 0%);
   transition: transform 150ms var(--ep-ease-out),
     background-color var(--ep-speed) var(--ep-ease),
-    box-shadow var(--ep-speed) var(--ep-ease);
+    filter var(--ep-speed) var(--ep-ease),
+    box-shadow 1s var(--ep-ease),
+    text-shadow 800ms var(--ep-ease);
 }
 
 li.outline-item-wrapper > .outline-item:active {
   background-color: rgb(167 192 128 / 14%);
   transform: scale(0.99);
+}
+
+/* 可折叠大纲（body 无 no-collapse-outline 类时生效，扁平视图不受影响）：
+   原生箭头是 Ionicons 灰色字形，展开切换内容字形无过渡；
+   换 CSS 边框细箭头，展开旋转 90 度并转绿；层级缩进改挂子级 ul
+   （原生按深度写死在条目内边距上），每级 14px 并配 1px 极淡
+   参考线，子级展开时 180ms 淡入下滑 */
+body:not(.no-collapse-outline) li.outline-item-wrapper > .outline-item {
+  padding-left: 0;
+}
+
+body:not(.no-collapse-outline) .outline-content ul.outline-children {
+  margin-left: 14px;
+  padding-left: 8px;
+  border-left: 1px solid var(--ep-line-1);
+}
+
+body:not(.no-collapse-outline) .outline-expander {
+  display: inline-block;
+  width: 16px;
+  padding-left: 2px;
+  vertical-align: middle;
+}
+
+body:not(.no-collapse-outline) .outline-expander::before {
+  content: '';
+  position: relative;
+  top: -1px;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--ep-text-faint);
+  border-right: 1.5px solid var(--ep-text-faint);
+  transform: rotate(45deg);
+  transition: transform 150ms var(--ep-ease-out),
+    border-color var(--ep-speed) var(--ep-ease);
+}
+
+body:not(.no-collapse-outline) .outline-item:hover .outline-expander::before {
+  content: '';
+  border-color: var(--ep-green);
+}
+
+body:not(.no-collapse-outline) .outline-item-open > .outline-item .outline-expander::before {
+  content: '';
+  border-color: var(--ep-green);
+  transform: rotate(135deg);
+}
+
+/* 展开瞬间子级条目重新进入渲染树，动画随之重放（折叠方向 display
+   切换无法过渡，收起保持瞬时） */
+body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outline-item-wrapper {
+  animation: ep-branch-in 180ms var(--ep-ease-out);
+}
+
+@keyframes ep-branch-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .pin-outline #outline-content .outline-active strong,
@@ -2394,6 +2790,69 @@ li.outline-item-wrapper > .outline-item:active {
 .pin-outline .outline-item:hover .outline-label {
   color: var(--ep-text) !important;
   background-size: 100% 2px;
+}
+
+/* 高亮当前条目（大纲「高亮当前标题」与文件树定位共用 .blink-area）：
+   原生 blink-bg 黄底硬闪 8 次，深色下亮字不可读；JS 固定 2000ms
+   摘类，动画内只做 2 秒并停在可见余量，摘类后沿宿主的
+   box-shadow 过渡再淡出约 1 秒，总时长约 3 秒；
+   洗底走 inset 大扩散 box-shadow 而非 background-color：
+   悬停卡与激活行都用 background-color，共用通道会互相拖慢，
+   box-shadow 归高亮独占，悬停卡投影改走 filter */
+.blink-area {
+  border-radius: 7px;
+}
+
+/* 高亮宿主的摘类淡出通道：文件树节点与列表行原本没有过渡规则，
+   只补 box-shadow 与 text-shadow 两档，不碰背景与位移；
+   基线同样声明同几何透明阴影，保证淡出只走透明度通道 */
+#file-library .file-library-node,
+#file-library .file-list-item {
+  box-shadow: inset 0 0 0 1px rgb(167 192 128 / 0%),
+    inset 0 0 0 60px rgb(167 192 128 / 0%);
+  transition: box-shadow 1s var(--ep-ease),
+    text-shadow 800ms var(--ep-ease);
+}
+
+/* 保持值与动画（选择器按宿主逐个压过上面的基线）：
+   动画不设 forwards、末段插值自然落到声明值，1.9s 结束与声明
+   重合无跳变；JS 满 2s 摘类时声明值变基线透明值，属常规声明间
+   变化，宿主的 box-shadow 过渡必然触发、淡出约 1 秒
+   （Chromium 不支持从被移除的动画值起过渡，动画通道不触发） */
+li.outline-item-wrapper > .outline-item.blink-area,
+#file-library .file-library-node.blink-area,
+#file-library .file-list-item.blink-area {
+  box-shadow: inset 0 0 0 1px rgb(167 192 128 / 28%),
+    inset 0 0 0 60px rgb(167 192 128 / 18%);
+  text-shadow: 0 0 6px rgb(167 192 128 / 35%);
+  animation: ep-blink-pulse 1.9s var(--ep-ease);
+}
+
+@keyframes ep-blink-pulse {
+  0% {
+    box-shadow: inset 0 0 0 1px rgb(167 192 128 / 0%),
+      inset 0 0 0 60px rgb(167 192 128 / 0%);
+    text-shadow: none;
+  }
+
+  10% {
+    box-shadow: inset 0 0 0 1px rgb(167 192 128 / 55%),
+      inset 0 0 0 60px rgb(167 192 128 / 36%);
+    text-shadow: 0 0 16px rgb(167 192 128 / 80%),
+      0 0 4px rgb(167 192 128 / 60%);
+  }
+
+  30% {
+    box-shadow: inset 0 0 0 1px rgb(167 192 128 / 18%),
+      inset 0 0 0 60px rgb(167 192 128 / 12%);
+    text-shadow: 0 0 3px rgb(167 192 128 / 25%);
+  }
+
+  55% {
+    box-shadow: inset 0 0 0 1px rgb(167 192 128 / 40%),
+      inset 0 0 0 60px rgb(167 192 128 / 26%);
+    text-shadow: 0 0 12px rgb(167 192 128 / 60%);
+  }
 }
 
 #toc-dropmenu.open {
@@ -2887,7 +3346,7 @@ footer.ty-footer .footer-item:active {
 /* 左列导航按压：渐变面整体提亮一档 + 内容微缩 */
 #megamenu-menu-list li a:active {
   filter: brightness(1.3);
-  transform: scale(0.99);
+  transform: translateY(1px) scale(0.99);
 }
 
 #megamenu-menu-list li a:focus-visible {
@@ -3149,28 +3608,152 @@ footer.ty-footer .footer-item:active {
   box-shadow: var(--ep-shadow-float);
 }
 
-.dropdown-menu > li > a {
-  color: var(--control-text-color);
+/* 菜单项胶囊化（macOS / Win11 悬停胶囊惯例）：
+   左右各内缩 6px 出圆角胶囊，悬停底不再通栏贴边。
+   原生 a 是内联元素，上下内边距不占行高，悬停底色溢出行框
+   画到相邻行文字上（实测交叠 4.8px）；改块级后内边距计入布局，
+   行距由内边距撑开，胶囊与上下行、图标按钮行互不侵界 */
+.dropdown-menu:not(.megamenu-menu-list) > li > a {
+  display: block;
+  margin: 1px 6px;
+  padding: 5px 18px;
+  border-radius: 7px;
+  /* 常态文字从 --control-text-color 提亮一档：菜单瞬时层需要即时可读 */
+  color: #b9c4bc;
+  font-family: var(--ep-font-ui);
+  font-size: 14px;
+  line-height: 1.2;
+  transform-origin: 0 50%;
   transition: background-color var(--ep-speed) var(--ep-ease),
-    color var(--ep-speed) var(--ep-ease);
+    color var(--ep-speed) var(--ep-ease),
+    transform 80ms ease-out;
 }
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover {
-  color: var(--ep-text);
-  background-color: var(--ep-hover-green);
+  color: var(--ep-green-bright);
+  background-color: rgb(167 192 128 / 16%);
 }
 
 .open > .dropdown-menu {
   background: var(--ep-bg-popover);
 }
 
-/* 右键与下拉菜单项按压：底色加深一档（桌面菜单惯例，无缩放） */
+/* 右键与下拉菜单项按压：底色加深一档，左锚点轻缩，
+   压下 80ms 即时，松开沿过渡缓出 */
 .dropdown-menu:not(.megamenu-menu-list) > li > a:active,
 .dropdown-menu:not(.megamenu-menu-list) li:active > a {
-  color: var(--ep-text);
+  color: var(--ep-green-bright);
   background-color: rgb(167 192 128 / 20%);
+  transform: scale(0.98);
+}
+
+/* 破坏性条目：文字项在 li 的 data-key 上（delete / delete-block /
+   delete-img / delete-img-file 及下划线变体 delete_table_row，
+   前缀 delete 全覆盖），挂在 li、样式作用于内层 a；
+   浮层底 #1e2521 上 #ca7a7a 对比约 4.9:1，可读 */
+.dropdown-menu:not(.megamenu-menu-list) li[data-key^='delete'] > a {
+  color: #ca7a7a;
+}
+
+.dropdown-menu:not(.megamenu-menu-list) li[data-key^='delete'] > a:hover,
+.dropdown-menu:not(.megamenu-menu-list) li[data-key^='delete'] > a:focus {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 28%);
+}
+
+.dropdown-menu:not(.megamenu-menu-list) li[data-key^='delete'] > a:active {
+  color: #efb5b5;
+  background-color: rgb(202 122 122 / 22%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 32%);
+  transform: scale(0.98);
+}
+
+/* 工具行垃圾桶按钮（data-key 是 backspace，label 为 Delete Selected，
+   且 data-key 挂在 a 自身而非外层 li，前缀 delete 够不到，需单独钩）：
+   常态红图标，卡片底与兄弟按钮一致，悬停红染红环替代绿染 */
+.dropdown-menu .menu-item-container a.menu-style-btn[data-key='backspace'] {
+  color: #ca7a7a;
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn[data-key='backspace']:hover {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 28%);
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn[data-key='backspace']:active {
+  color: #efb5b5;
+  background-color: rgb(202 122 122 / 22%);
+}
+
+/* 文件树右键菜单「删除」：钩子在 li 的 data-action 上且 data-key
+   为空（#file-menu 独立于编辑器菜单，条目全部走 data-action），
+   前缀 delete 的 data-key 规则够不到；浮层底色与编辑器菜单相同，
+   红档数值直接复用（常态 4.9:1 可读） */
+#file-menu li[data-action='delete'] > a {
+  color: #ca7a7a;
+}
+
+#file-menu li[data-action='delete'] > a:hover,
+#file-menu li[data-action='delete'] > a:focus {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 28%);
+}
+
+#file-menu li[data-action='delete'] > a:active {
+  color: #efb5b5;
+  background-color: rgb(202 122 122 / 22%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 32%);
+  transform: scale(0.98);
+}
+
+/* 菜单图标按钮行：四枚按钮独立成卡，按钮间留 4px 间隙，
+   行内缩与文字胶囊对齐（容器 4px 加按钮外边距 2px）；
+   原生零间隙连排且与文字行内缩不齐 */
+/* 容器必须改弹性布局：原生 span 保持内联，按钮 inline-block 的
+   calc(25%) 按 li（菜单宽 224px）解析，锚点之间的空白文本节点
+   再渲染出约 12px 空隙，叠加容器 8px 内边距后最右卡片越出菜单右缘；
+   弹性容器忽略空白文本节点，按钮按份数等分内容盒，行恰好收纳 */
+.dropdown-menu .menu-item-container {
+  display: flex;
+  padding: 5px 4px;
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn {
+  flex: 1 1 0;
+  margin: 2px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 3%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%);
+  transition: background-color var(--ep-speed) var(--ep-ease),
+    color var(--ep-speed) var(--ep-ease),
+    transform 80ms ease-out;
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn-2width {
+  flex: 2 2 0;
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn:hover {
+  color: var(--ep-green-bright);
+  background-color: rgb(167 192 128 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(167 192 128 / 25%);
+}
+
+.dropdown-menu .menu-item-container a.menu-style-btn:active {
+  transform: scale(0.92);
+  background-color: rgb(167 192 128 / 20%);
+}
+
+/* 分隔线随胶囊内缩，两侧不顶到菜单边 */
+.dropdown-menu .divider {
+  margin: 5px 12px;
 }
 
 #typora-quick-open {
@@ -4354,15 +4937,25 @@ footer.ty-footer .footer-item:active {
   line-height: 1;
   border: 1px solid transparent;
   border-radius: 9px;
+  transform-origin: 0 50%;
   transition: background-color var(--ep-speed) var(--ep-ease),
     color var(--ep-speed) var(--ep-ease),
     border-color var(--ep-speed) var(--ep-ease),
-    box-shadow var(--ep-speed) var(--ep-ease);
+    box-shadow var(--ep-speed) var(--ep-ease),
+    transform 80ms ease-out;
 }
 
 .ty-preferences .nav-group-item:hover {
   color: var(--ep-text);
   background: rgb(255 255 255 / 4%);
+}
+
+/* 偏好侧栏按压：绿染加深一档，左锚点轻缩（置于 hover 后，压下时胜出） */
+.ty-preferences .nav-group-item:active {
+  color: #f4f8f0;
+  background: linear-gradient(90deg, rgb(167 192 128 / 24%), rgb(167 192 128 / 13%));
+  border-color: rgb(167 192 128 / 24%);
+  transform: scale(0.985);
 }
 
 .ty-preferences .nav-group-item.active {
