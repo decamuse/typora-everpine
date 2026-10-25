@@ -237,7 +237,9 @@ content::-webkit-scrollbar-track {
 }
 
 /* 搜索命中两级：候选 = 亮褐 60%；选中 = 亮金实底 + 深墨字。
-   圆角 6px，跨行命中每段独立裁角，无外圈高亮环 */
+   编辑区命中是 span（md-search-hit，当前命中另加 md-search-select），
+   圆角 6px，跨行命中每段独立裁角；命中落在行内代码等展开语法里时
+   Typora 会在命中上创建原生选区，下方规则将其压成透明让位 */
 .md-search-hit {
   background-color: rgb(154 113 44 / 60%);
   border-radius: 6px;
@@ -264,11 +266,27 @@ content::-webkit-scrollbar-track {
   color: inherit;
 }
 
-/* 查找面板打开期间，正文选区交给命中底色绘制，
-   避免原生方形选区盖住圆角命中块 */
-.on-search-panel-open content::selection,
-.on-search-panel-open content ::selection {
+/* 查找面板打开期间，正文选区交给命中底色绘制；原生选区按
+   行盒绘制，不压掉时会在命中块四周露出一圈绿色选区底 */
+.on-search-panel-open #write::selection,
+.on-search-panel-open #write ::selection {
   background: transparent;
+}
+
+/* 代码块内命中是 CodeMirror 标记（cm-search-hit）：候选亮褐 60%
+   加圆角；当前命中的金色由 Typora 以 --search-select-* 变量加
+   !important 绘制，优先级更高，此处无需重复设色 */
+#write .cm-search-hit {
+  background-color: rgb(154 113 44 / 60%);
+  border-radius: var(--ep-radius-chip);
+}
+
+/* 查找面板打开期间，CodeMirror 的原生选区就是当前命中锚点，
+   其绿底带 !important 且按整行高度绘制，会从命中块四周露出；
+   用更高特异性的 !important 压掉，:not 排除带命中标记的 span，
+   不波及 Typora 画在命中标记上的金色 */
+.on-search-panel-open #write .CodeMirror-selected:not(.cm-search-hit) {
+  background-color: transparent !important;
 }
 
 /* 侧栏搜索候选文件：候选行微亮，命中词暖金；选中文件与选中词再提亮 */
@@ -614,17 +632,26 @@ blockquote > ol + p,
   color: var(--ep-text);
 }
 
-/* 列表：符号低饱和装饰档，条目文字保持正文色 */
+/* 列表：符号低饱和装饰档，条目文字保持正文色；
+   符号颜色只认最近父列表，后代选择器会让 ol 嵌套后的
+   深层 ul 符号被同特异性的后规则染成 ol 色 */
 #write ul {
   list-style-type: disc;
   color: var(--ep-text);
 }
 
-#write ul ul {
+/* 形状按绝对层级：1 圆点、2 方块、3 及更深空心圆；
+   中间嵌 ol 时按 ul 祖先计数会错位，混合祖先逐式枚举，
+   更长选择器特异性更高，自然压过浅层规则 */
+#write ul ul,
+#write ol ul {
   list-style-type: square;
 }
 
-#write ul ul ul {
+#write ul ul ul,
+#write ul ol ul,
+#write ol ul ul,
+#write ol ol ul {
   list-style-type: circle;
 }
 
@@ -632,13 +659,11 @@ blockquote > ol + p,
   color: var(--ep-text);
 }
 
-#write ul > li::marker,
-#write ul li::marker {
+#write ul > li::marker {
   color: var(--ep-marker-ul);
 }
 
-#write ol > li::marker,
-#write ol li::marker {
+#write ol > li::marker {
   color: var(--ep-marker-ol);
 }
 
@@ -730,6 +755,8 @@ blockquote > ol + p,
 /* mark 高亮：暖黄底深墨绿字 + 极轻阴影 */
 #write mark {
   padding: 1px 4px;
+  /* 左右各加 1px margin，与行内代码同款，高亮块不贴邻字 */
+  margin: 0 1px;
   font-weight: normal;
   color: #16211a !important;
   background: var(--ep-yellow) !important;
