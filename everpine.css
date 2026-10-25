@@ -1269,7 +1269,8 @@ figure {
   pointer-events: none;
 }
 
-/* typora_plugin 代码块右上角三按钮：无底色方块，悬停绿色微光 */
+/* typora_plugin 代码块右上角三按钮：恒无底色，悬停浮起 2px 变绿加淡光晕，
+   按压回落原位并轻缩，与浮起构成一进一出的位移闭环 */
 #write .fence-enhance {
   top: 10px !important;
   right: 14px !important;
@@ -1280,23 +1281,23 @@ figure {
   border: 1px solid transparent;
   border-radius: var(--ep-radius-chip);
   color: rgb(201 211 204 / 60%);
+  background-color: transparent;
   opacity: 1;
-  transition: background-color var(--ep-speed) var(--ep-ease),
-    color var(--ep-speed) var(--ep-ease),
-    border-color var(--ep-speed) var(--ep-ease);
+  transition: color var(--ep-speed) var(--ep-ease),
+    transform 120ms var(--ep-ease),
+    filter 150ms var(--ep-ease);
 }
 
 #write .fence-enhance .enhance-btn:hover {
   color: var(--ep-green);
-  background-color: var(--ep-hover-green-strong);
-  border-color: rgb(167 192 128 / 35%);
+  transform: translateY(-2px);
+  filter: drop-shadow(0 2px 6px rgb(174 203 150 / 30%));
   opacity: 1;
 }
 
 #write .fence-enhance .enhance-btn:active {
   color: var(--ep-green-bright);
-  background-color: var(--ep-active-green);
-  border-color: rgb(167 192 128 / 55%);
+  transform: translateY(0) scale(0.96);
 }
 
 /* 点击行号出现的行底色保持透明
@@ -5476,7 +5477,8 @@ body #plugin-action-buttons .action-item i.fa-caret-down {
 
 /* 圆角小片按钮：26px 紧凑档并盖掉插件配置注入的内联底色、投影与圆角；
    盒模型、内外边距与插件按按钮尺寸写入的行高一并清零，
-   图标交给 flex 居中；悬停浮出绿色圆角片，按下收绿加深并缩到 0.94 */
+   图标交给 flex 居中；悬停不放底色、图标变绿并播放方向动画，
+   按下才收绿色底片并缩到 0.94 */
 body #plugin-action-buttons .action-item {
   display: flex;
   align-items: center;
@@ -5497,9 +5499,10 @@ body #plugin-action-buttons .action-item {
 }
 
 body #plugin-action-buttons .action-item:hover {
-  background-color: rgb(167 192 128 / 12%) !important;
   color: var(--ep-green-bright) !important;
-  /* 插件自带的悬停上移与外扩阴影在胶囊内形成底色晕，一并去掉 */
+  /* 悬停不放绿片：变绿与方向动画已是命中反馈，静止底色会框住运动图标；
+     插件自带的悬停上移与外扩阴影在胶囊内形成底色晕，一并去掉 */
+  background-color: transparent !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -5509,6 +5512,53 @@ body #plugin-action-buttons .action-item:active {
   background-color: rgb(167 192 128 / 18%) !important;
   color: var(--ep-green-bright) !important;
   transform: scale(0.94) !important;
+}
+
+/* 悬停方向动画：回顶上移回落、回底下移回落（尾部各带 1px 小回弹），
+   图片按钮放大脉冲（它打开的是图片查看器）；每次进入悬停播放一次，
+   不循环，移出时 i 的 transform 过渡把图标平滑送回原位。
+   动画与 keyframes 整组包在 no-preference 里，
+   系统开启「减弱动态效果」时整组不生效，退化为纯变色 */
+@media (prefers-reduced-motion: no-preference) {
+  body #plugin-action-buttons .action-item i {
+    transition: transform 120ms var(--ep-ease);
+  }
+
+  /* 回顶：上移 3px 回位，尾部 1px 一次小回弹（弹簧感） */
+  @keyframes ep-nudge-up {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-3px); }
+    70% { transform: translateY(0); }
+    85% { transform: translateY(-1px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* 回底：与回顶同一条曲线，方向镜像向下 */
+  @keyframes ep-nudge-down {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(3px); }
+    70% { transform: translateY(0); }
+    85% { transform: translateY(1px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* 图片：放大脉冲，呼应打开图片查看器的动作 */
+  @keyframes ep-pulse {
+    0%, 100% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+  }
+
+  body #plugin-action-buttons .action-item:hover i.fa-caret-up {
+    animation: ep-nudge-up 0.48s var(--ep-ease-out);
+  }
+
+  body #plugin-action-buttons .action-item:hover i.fa-caret-down {
+    animation: ep-nudge-down 0.48s var(--ep-ease-out);
+  }
+
+  body #plugin-action-buttons .action-item:hover i.fa-image {
+    animation: ep-pulse 0.42s var(--ep-ease-out);
+  }
 }
 
 /* 插件标签栏：标签四角统一 6px 圆角（与绿条圆角同档）+ 轻影 + 悬停亮一档；
