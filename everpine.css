@@ -3861,8 +3861,14 @@ footer.ty-footer .footer-item:active {
     transform 80ms ease-out;
 }
 
+/* 增加缩进按钮（menu-style-btn-2width）：原生 text-align:left 加
+   12px 左内边距、双倍宽，为「图标旁带文字标签」的旧设计预留；
+   本主题该按钮只放一枚图标，并入等分卡并居中图标，
+   与减少缩进构成对称一对，和上方四枚卡同构 */
 .dropdown-menu .menu-item-container a.menu-style-btn-2width {
-  flex: 2 2 0;
+  flex: 1 1 0;
+  padding-left: 0;
+  text-align: center;
 }
 
 .dropdown-menu .menu-item-container a.menu-style-btn:hover {
