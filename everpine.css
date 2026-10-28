@@ -672,25 +672,32 @@ content::-webkit-scrollbar-track {
   margin-bottom: 1.25rem;
 }
 
+/* 文字接列表的统一结算：三种语境（正文、引用、警告框）一律收敛
+   到 0.7rem 净间距，与正文节奏一致。正文：1.25rem - 0.55rem；
+   引用：1rem - 0.3rem；警告框：正文段外边距已归零，直接给 0.7rem */
 #write > p + ol,
-#write > p + ul,
-blockquote > p + ol,
-blockquote > p + ul,
-.md-alert > p:not(:first-of-type) + ol,
-.md-alert > p:not(:first-of-type) + ul {
+#write > p + ul {
   margin-top: -0.55rem !important;
 }
 
-#write > ul + p,
-#write > ol + p {
-  margin-top: 1.25rem !important;
+blockquote > p + ol,
+blockquote > p + ul {
+  margin-top: -0.3rem !important;
 }
 
+.md-alert > p:not(:first-of-type) + ol,
+.md-alert > p:not(:first-of-type) + ul {
+  margin-top: 0.7rem !important;
+}
+
+/* 列表接下一段：三语境统一 1.25rem，与段间距一致 */
+#write > ul + p,
+#write > ol + p,
 blockquote > ul + p,
 blockquote > ol + p,
 .md-alert > ul + p,
 .md-alert > ol + p {
-  margin-top: 0.8rem !important;
+  margin-top: 1.25rem !important;
 }
 
 #write p {
@@ -864,7 +871,7 @@ blockquote {
 
 /* --------------------------------------------------------------------------
    警告框：GitHub 结构，首行左上角图标 + 彩色标签，正文在下
-   淡染底 8% + 3px 左条；标签显式左对齐
+   暗底 24% 垫面 + 品类色 10% 淡染 + 55% 左条；标签显式左对齐
    -------------------------------------------------------------------------- */
 
 .md-alert {
@@ -884,15 +891,24 @@ blockquote {
   text-align: left;
 }
 
-/* 标签行与正文之间留 8px。上下内边距同步收紧，
-   间距来自原有高度，告警整体高度不增加 */
+/* 段落与列表顶底边距归零：段距、段接列表等结算统一在文首
+   节奏区与下方规则；标签行与正文的 20px 间距由标签容器
+   padding-bottom 提供（见下），上下内边距同步收紧后告警
+   整体高度不增加 */
 .md-alert > p,
 .md-alert > div {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
-.md-alert > p:first-child,
+/* 首段的 1.2 紧行高只服务纯标签行；同行写法（[!NOTE] 与引导句
+   同段）的首段还承载引导句正文，:has 探测段内是否另有行内内容，
+   有则恢复继承行高，行盒与两行写法的引导句一致 */
+.md-alert > p:first-child:not(:has(> :not(.md-alert-text))) {
+  line-height: 1.2;
+  margin-bottom: 0 !important;
+}
+
 .md-alert > div:first-child {
   line-height: 1.2;
   margin-bottom: 0 !important;
@@ -914,28 +930,62 @@ blockquote {
   white-space: normal;
 }
 
-/* 正文多段之间留 10px；第一段与标签行的间距由标签行内边距提供 */
-.md-alert > p + p,
-.md-alert > p + ul,
-.md-alert > p + ol,
-.md-alert > ul + p,
-.md-alert > ol + p {
-  margin-top: 10px !important;
+/* 正文多段之间对齐正文段距（1.25rem）；段接列表、列表接段的
+   结算统一在文首节奏区（0.7rem / 1.25rem），此处不再设 10px
+   旧档（同特异性时文件靠后的规则会赢，留着会盖掉统一值）；
+   标签行后的第一段顶距归零，间距由标签行内边距提供；
+   归零只认纯标签行（:has 探测），同行写法的第二段是正文段，
+   须落回上方 1.25rem 档 */
+.md-alert > p + p {
+  margin-top: 1.25rem !important;
 }
 
-.md-alert > p:first-child + p,
+.md-alert > p:first-child:not(:has(> :not(.md-alert-text))) + p,
 .md-alert > .md-alert-text-container + p {
   margin-top: 0 !important;
+}
+
+/* 收尾节奏：列表结尾的外边距会落到框底（警告框是 div，吃不到
+   引用块的 last-child 归零规则），只需清掉最后一个列表的尾距。
+   条目归零必须限定最后一枚条目（li:last-child）：Typora 每个条目
+   都包着 p，条目间的 0.5rem 正文节奏正是上一条目 p 的 margin-bottom，
+   按 li 泛匹配会把每一枚条目的尾距清零，条目间距塌成 0；
+   逐层 li:last-child 让嵌套列表的收尾链逐级清零，中间条目不受影响 */
+.md-alert > :last-child,
+.md-alert > :last-child li:last-child > :last-child {
+  margin-bottom: 0;
+}
+
+/* 纯标签行后直接接列表：顶距归零，间距由标签行内边距提供；
+   同行写法（[!NOTE] 与引导句同段，首段含引导句正文）改取
+   0.7rem，与两行写法的正文段接列表一致 */
+.md-alert > p:first-child:not(:has(> :not(.md-alert-text))) + ul,
+.md-alert > p:first-child:not(:has(> :not(.md-alert-text))) + ol,
+.md-alert > div:first-child + ul,
+.md-alert > div:first-child + ol {
+  margin-top: 0 !important;
+}
+
+.md-alert > p:first-child:has(> :not(.md-alert-text)) + ul,
+.md-alert > p:first-child:has(> :not(.md-alert-text)) + ol {
+  margin-top: 0.7rem !important;
 }
 
 .md-alert-text-container::after {
   font-weight: 600;
 }
 
-/* 五类：底色淡染 8%，左条 55%，标签字与图标同色 */
+/* 五类底色：凹面通知板 —— 24% 暗底垫到贴近目录卡的深度档
+   （卡片 #111513 上 13% 黑几乎不可见，24% 才读得出凹面），
+   品类色 10% 淡染作色相信号，左条 55%，标签字与图标同色。
+   引用框保持平铺中性染，两者自此分属两类表面：浅色中性旁注 vs
+   深色品类通知（暗色界面 callout 的通行做法：品类色低透明淡染
+   垫在主题底面上） */
 .md-alert.md-alert-note,
 .md-alert .md-alert-note {
-  background: rgb(127 187 179 / 8%);
+  background:
+    linear-gradient(rgb(127 187 179 / 10%), rgb(127 187 179 / 10%)),
+    rgb(0 0 0 / 24%);
   border-left: 3px solid rgb(127 187 179 / 55%);
 }
 
@@ -947,7 +997,9 @@ blockquote {
 
 .md-alert.md-alert-tip,
 .md-alert .md-alert-tip {
-  background: rgb(167 192 128 / 8%);
+  background:
+    linear-gradient(rgb(167 192 128 / 10%), rgb(167 192 128 / 10%)),
+    rgb(0 0 0 / 24%);
   border-left: 3px solid rgb(167 192 128 / 55%);
 }
 
@@ -959,7 +1011,9 @@ blockquote {
 
 .md-alert.md-alert-important,
 .md-alert .md-alert-important {
-  background: rgb(210 149 178 / 8%);
+  background:
+    linear-gradient(rgb(210 149 178 / 10%), rgb(210 149 178 / 10%)),
+    rgb(0 0 0 / 24%);
   border-left: 3px solid rgb(210 149 178 / 55%);
 }
 
@@ -971,7 +1025,9 @@ blockquote {
 
 .md-alert.md-alert-warning,
 .md-alert .md-alert-warning {
-  background: rgb(219 188 127 / 8%);
+  background:
+    linear-gradient(rgb(219 188 127 / 10%), rgb(219 188 127 / 10%)),
+    rgb(0 0 0 / 24%);
   border-left: 3px solid rgb(219 188 127 / 55%);
 }
 
@@ -983,7 +1039,9 @@ blockquote {
 
 .md-alert.md-alert-caution,
 .md-alert .md-alert-caution {
-  background: rgb(202 122 122 / 8%);
+  background:
+    linear-gradient(rgb(202 122 122 / 10%), rgb(202 122 122 / 10%)),
+    rgb(0 0 0 / 24%);
   border-left: 3px solid rgb(202 122 122 / 55%);
 }
 
@@ -2241,6 +2299,57 @@ input[type='radio']:checked::after {
   overflow: hidden;
 }
 
+/* 头部关闭键：圈叉是关闭语义，配红色悬停语言（与插件标签
+   关闭键同一套颜色）。22px 方形热区，负顶距把热区中心对到
+   行内文字中心：原生 4px 顶距在块级化后真实生效，会把方块
+   压到文字下方 6.6px 并撑高整行 */
+#sidebar-files-menu #close-sidebar-menu-btn {
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  margin-top: -2.6px;
+  color: var(--ep-text-secondary);
+  opacity: 1;
+  line-height: 22px;
+  text-align: center;
+  border-radius: var(--ep-radius-tip);
+  transition: color var(--ep-speed) var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease),
+    transform var(--ep-speed) var(--ep-ease);
+}
+
+#sidebar-files-menu #close-sidebar-menu-btn:hover {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+}
+
+#sidebar-files-menu #close-sidebar-menu-btn:active {
+  transform: scale(0.92);
+}
+
+/* 排序行：方形热区加绿染，常驻墨点色（原生 40% 透明）悬停
+   点亮；选中键绿染比悬停深一档，原生选中底色与卡片同色
+   不可见，这里给出可读的选中态。负顶距对齐「排序」二字
+   中心（原生 4px 顶距使按键中心低 6.6px），与关闭键同基准 */
+#sidebar-files-menu .ty-side-sort-btn {
+  margin-top: -2.6px;
+  border-radius: var(--ep-radius-tip);
+  transition: color var(--ep-speed) var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease);
+}
+
+#sidebar-files-menu .ty-side-sort-btn:hover {
+  background-color: rgb(167 192 128 / 10%);
+}
+
+#sidebar-files-menu .ty-side-sort-btn.active {
+  background-color: rgb(167 192 128 / 16%);
+}
+
+#sidebar-files-menu .ty-side-sort-btn.active:hover {
+  background-color: rgb(167 192 128 / 22%);
+}
+
 /* 文件树：当前文件行保留底色（原生 active）与 4px 绿竖条，其余行无任何底色；
    当前行用 20% active-green（原生 #1e2521 与旧悬停 10% 绿只差 5 个灰阶）。
    不写 !important：important 作者声明在层叠中位于 animation 之上，
@@ -2769,6 +2878,17 @@ input[type='radio']:checked::after {
   border-radius: var(--ep-radius-tip);
 }
 
+/* 新建键常驻亮度对齐工具行悬停时其它按钮的档位
+   （--ep-text-secondary），作为该行常显锚点；亮度增量留给悬停
+   反馈：单键悬停才亮起（绿亮色系提亮一档 #dcebc0） */
+#typora-sidebar .sidebar-footer #sidebar-new-file-btn .ty-add {
+  color: var(--ep-text-secondary);
+}
+
+#typora-sidebar .sidebar-footer #sidebar-new-file-btn:hover span.ty-add {
+  color: #dcebc0;
+}
+
 .active-tab-files #info-panel-tab-file .info-panel-tab-border,
 .active-tab-outline #info-panel-tab-outline .info-panel-tab-border {
   background: var(--ep-green);
@@ -3018,6 +3138,13 @@ footer.ty-footer:hover {
   opacity: 1;
 }
 
+/* 页脚文字与字数统计下拉面板统一菜单 UI 字体（霞鹜文楷）；
+   各图标元素自带图标字体规则，不受继承影响 */
+footer.ty-footer,
+#footer-word-count-info {
+  font-family: var(--ep-font-ui);
+}
+
 footer.ty-footer .footer-item {
   position: relative;
   color: var(--ep-text-secondary);
@@ -3101,7 +3228,328 @@ footer.ty-footer .footer-item:active {
   transform: scale(0.98);
 }
 
-.ty-footer-word-count-all {
+/* --------------------------------------------------------------------------
+   悬停方向动画：页脚与目录工具行共用一套节奏，语言与插件悬浮按钮
+   （回顶/回底）一致，峰值后回落，尾部 1px 级小回弹；每次进入悬停
+   播放一次，不循环。幅度收在 2px 内，图标墨迹两侧留白足够吸收，
+   动画不越出悬停底色。整组包在 no-preference 里，系统开启
+   「减弱动态效果」时整组不生效，退化为纯变色
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ty 图标与页脚文字标签原生是 inline，transform 不生效，先转
+     inline-block；目录两个状态图标只在各自的显示态补齐：实心
+     圆点限定未固定态，固定态由原生 display:none 隐藏，规则
+     不越过它点亮，悬停仍只有左箭头一枚图标 */
+  body #footer-word-count-label,
+  body #footer-spell-check-label,
+  #typora-sidebar .sidebar-footer span.ty-icon,
+  body:not(.pin-outline) footer.ty-footer #outline-btn:hover .ty-md-radio-button-on,
+  body.pin-outline footer.ty-footer #outline-btn .ion-chevron-left {
+    display: inline-block;
+  }
+
+  /* 图标补 120ms 过渡：移出悬停动画结束的瞬间平滑归位 */
+  footer.ty-footer #outline-btn i,
+  footer.ty-footer #toggle-sourceview-btn i,
+  body #footer-word-count-label,
+  body #footer-spell-check-label,
+  #typora-sidebar .sidebar-footer span.ty-icon {
+    transition: transform 120ms var(--ep-ease);
+  }
+
+  /* 收起目录：左移 2px 回位，呼应目录向左收起 */
+  @keyframes ep-nudge-left {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(-2px); }
+    70% { transform: translateX(0); }
+    85% { transform: translateX(-1px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* 展开目录：右移 2px 回位，方向镜像 */
+  @keyframes ep-nudge-right {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(2px); }
+    70% { transform: translateX(0); }
+    85% { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* 源代码模式：尖括号横向收拢再张开，带敲代码的按压感；
+     只横向收缩，不会越出按钮盒 */
+  @keyframes ep-pinch {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.82, 1); }
+    70% { transform: scale(1); }
+    85% { transform: scale(0.92, 1); }
+    100% { transform: scale(1); }
+  }
+
+  /* 拼写检查：小幅摆动，对应「正在检查」 */
+  @keyframes ep-wiggle {
+    0% { transform: rotate(0); }
+    40% { transform: rotate(-8deg); }
+    70% { transform: rotate(5deg); }
+    100% { transform: rotate(0); }
+  }
+
+  /* 新建：放大脉冲，呼应创建动作（与插件图片按钮同语言） */
+  @keyframes ep-pop {
+    0%, 100% { transform: scale(1); }
+    45% { transform: scale(1.18); }
+  }
+
+  /* 字数统计与打开目录菜单：上浮 1.5px 回落，尾部 0.5px 小回弹 */
+  @keyframes ep-tick-up {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-1.5px); }
+    70% { transform: translateY(0); }
+    85% { transform: translateY(-0.5px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* 镜像：下压 1.5px 回位，尾部 0.5px 小回弹（粘贴、列标记箭头） */
+  @keyframes ep-tick-down {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(1.5px); }
+    70% { transform: translateY(0); }
+    85% { transform: translateY(0.5px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* 垃圾桶：左右摆动警示，删除类按钮专用 */
+  @keyframes ep-shake {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(-9deg); }
+    50% { transform: rotate(7deg); }
+    75% { transform: rotate(-4deg); }
+    100% { transform: rotate(0); }
+  }
+
+  /* 加号两道杠的同拍轻弹：关键帧内各自保留基础平移与旋转，
+     替换式动画不会把横杠姿态抖掉；缩放围绕杠自身中心，
+     加号从中心放大，底色块保持静止 */
+  @keyframes ep-plus-pop-h {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    45% { transform: translate(-50%, -50%) scale(1.16); }
+  }
+
+  @keyframes ep-plus-pop-v {
+    0%, 100% { transform: translate(-50%, -50%) rotate(90deg) scale(1); }
+    45% { transform: translate(-50%, -50%) rotate(90deg) scale(1.16); }
+  }
+
+  /* 页脚：收起目录（固定态）左移，展开目录（未固定态，悬停时
+     才显示的实心圆点图标）右移 */
+  footer.ty-footer #outline-btn:hover .ion-chevron-left {
+    animation: ep-nudge-left 0.48s var(--ep-ease-out);
+  }
+
+  body:not(.pin-outline) footer.ty-footer #outline-btn:hover .ty-md-radio-button-on {
+    animation: ep-nudge-right 0.48s var(--ep-ease-out);
+  }
+
+  /* 页脚：源代码模式尖括号收拢；退出源代码模式状态下同一图标同动画 */
+  footer.ty-footer #toggle-sourceview-btn:hover i.fa-code {
+    animation: ep-pinch 0.48s var(--ep-ease-out);
+  }
+
+  /* 页脚：拼写检查摆动（图标或语言代号由脚本填充，动整枚标签，
+     不碰下载状态的刷新图标，它自带持续旋转动画） */
+  body #footer-spell-check:hover #footer-spell-check-label {
+    animation: ep-wiggle 0.5s var(--ep-ease-out);
+  }
+
+  /* 页脚：字数统计轻点上浮 */
+  body #footer-word-count:hover #footer-word-count-label {
+    animation: ep-tick-up 0.44s var(--ep-ease-out);
+  }
+
+  /* 目录栏「文件」工具行：新建放大脉冲 */
+  #typora-sidebar .sidebar-footer #sidebar-new-file-btn:hover span.ty-add {
+    animation: ep-pop 0.42s var(--ep-ease-out);
+  }
+
+  /* 目录栏：解除固定目录左移，呼应面板向左收回 */
+  #typora-sidebar .sidebar-footer #unpin-outline-btn:hover .ty-export1 {
+    animation: ep-nudge-left 0.48s var(--ep-ease-out);
+  }
+
+  /* 目录栏：切换列表/树视图小幅摆动，两种状态图标各自动画，
+     悬停时只有当前模式图标可见，只命中一个 */
+  #typora-sidebar .sidebar-footer #switch-file-list-btn:hover .ty-three-cells,
+  #typora-sidebar .sidebar-footer #switch-file-list-btn:hover .ty-file-tree {
+    animation: ep-wiggle 0.5s var(--ep-ease-out);
+  }
+
+  /* 目录栏：打开目录菜单的竖点轻点上浮，呼应菜单弹出 */
+  #typora-sidebar .sidebar-footer #sidebar-menu-btn:hover .ty-dots-v {
+    animation: ep-tick-up 0.44s var(--ep-ease-out);
+  }
+
+  /* 目录卡片关闭键：字形（::before 字体图标）摆动警示，
+     关闭/删除同语义；底色块留在元素上保持静止 */
+  #sidebar-files-menu #close-sidebar-menu-btn::before {
+    display: inline-block;
+  }
+
+  #sidebar-files-menu #close-sidebar-menu-btn:hover::before {
+    animation: ep-shake 0.45s var(--ep-ease-out);
+  }
+
+  /* 目录卡片排序行：四枚排序键字形 = 方向箭头 + 属性符号，
+     悬停沿箭头方向轻点，升序上浮、降序下压（降序态由类切换
+     字形，箭头朝下）；分组盒无箭头，下压归拢对应收进分组；
+     动画落在字形伪元素上，绿染底块不动 */
+  #sidebar-files-menu .ty-side-sort-btn::before {
+    display: inline-block;
+  }
+
+  #sidebar-files-menu #ty-group-by-folder-btn:hover::before {
+    animation: ep-tick-down 0.44s var(--ep-ease-out);
+  }
+
+  #sidebar-files-menu .ty-side-sort-btn2:hover::before {
+    animation: ep-tick-up 0.44s var(--ep-ease-out);
+  }
+
+  #sidebar-files-menu .ty-side-sort-btn2.ty-sort-a:hover::before,
+  #sidebar-files-menu .ty-side-sort-btn2.ty-sort-t:hover::before,
+  #sidebar-files-menu .ty-side-sort-btn2.ty-sort-new-down:hover::before,
+  #sidebar-files-menu .ty-side-sort-btn2.ty-sort-by-natural-d:hover::before {
+    animation: ep-tick-down 0.44s var(--ep-ease-out);
+  }
+
+  /* 右键与下拉菜单项：悬停整行胶囊右移 2px 即回，走既有 80ms
+     transform 过渡；按压态的 scale(0.98) 规则在文件更后处，
+     悬停加按压时仍由按压规则接管 */
+  .dropdown-menu:not(.megamenu-menu-list) > li > a:hover {
+    transform: translateX(2px);
+  }
+
+  /* 菜单图标按钮与 TOC 删除键内的 ty 图标转 inline-block，
+     transform 才生效；表格编辑工具条的图标同理 */
+  .dropdown-menu .menu-item-container a.menu-style-btn i,
+  .md-table-edit button.btn:hover span.ty-icon,
+  #write .md-toc-tooltip .btn.md-delete-toc .ty-delete {
+    display: inline-block;
+  }
+
+  /* 剪切：剪刀小幅摆动，对应裁剪动作 */
+  .dropdown-menu .menu-item-container a.menu-style-btn:hover i.ty-cut {
+    animation: ep-wiggle 0.5s var(--ep-ease-out);
+  }
+
+  /* 菜单图标按钮默认轻弹：应用类动作的通用反馈，覆盖引用、列表
+     转换、任务列表与格式四键等无专属动作的图标；剪切、粘贴、
+     删除与缩进键由下方更高特异性规则覆写 */
+  .dropdown-menu .menu-item-container a.menu-style-btn:hover i {
+    animation: ep-pop 0.42s var(--ep-ease-out);
+  }
+
+  /* 引用菜单缩进键：减少缩进左移、增加缩进右移，方向呼应动作 */
+  .dropdown-menu .menu-item-container a.menu-style-btn:hover i.ty-left {
+    animation: ep-nudge-left 0.48s var(--ep-ease-out);
+  }
+
+  .dropdown-menu .menu-item-container a.menu-style-btn:hover i.ty-right {
+    animation: ep-nudge-right 0.48s var(--ep-ease-out);
+  }
+
+  /* 粘贴：下压回弹，对应把内容按进文档 */
+  .dropdown-menu .menu-item-container a.menu-style-btn:hover i.ty-paste {
+    animation: ep-tick-down 0.44s var(--ep-ease-out);
+  }
+
+  /* 删除所选：垃圾桶摆动警示，与红色悬停配色同语义 */
+  .dropdown-menu .menu-item-container a.menu-style-btn[data-key='backspace']:hover i.ty-delete1 {
+    animation: ep-shake 0.45s var(--ep-ease-out);
+  }
+
+  /* TOC 删除键：垃圾桶小幅摆动，删除警示语义 */
+  #write .md-toc-tooltip .btn.md-delete-toc:hover .ty-delete,
+  #write .md-toc-tooltip .btn.md-delete-toc:focus .ty-delete {
+    animation: ep-shake 0.45s var(--ep-ease-out);
+  }
+
+  /* 表格插入标记：一对箭头向中间并拢再回位，「插入到此处」语义；
+     行标记左右并拢，列标记上下并拢 */
+  #typora-table-row-insert-marker:hover i.fa-caret-left {
+    animation: ep-nudge-right 0.4s var(--ep-ease-out);
+  }
+
+  #typora-table-row-insert-marker:hover i.fa-caret-right {
+    animation: ep-nudge-left 0.4s var(--ep-ease-out);
+  }
+
+  #typora-table-col-insert-marker:hover i.fa-caret-down {
+    animation: ep-tick-up 0.4s var(--ep-ease-out);
+  }
+
+  #typora-table-col-insert-marker:hover i.fa-caret-up {
+    animation: ep-tick-down 0.4s var(--ep-ease-out);
+  }
+
+  /* 公式等原始块的编辑、确认小键：编辑摆动，确认轻弹 */
+  .md-rawblock-tooltip-btn.md-rawblock-tooltip-edit-btn:hover {
+    animation: ep-wiggle 0.5s var(--ep-ease-out);
+  }
+
+  .md-rawblock-tooltip-btn.md-rawblock-tooltip-ok-btn:hover {
+    animation: ep-pop 0.42s var(--ep-ease-out);
+  }
+
+  /* 表格编辑工具条（表格上方浮动条）：缩放表格轻弹；对齐三键朝
+     对齐方向移动，居中为横向收拢；删除垃圾桶摆动；更多竖点上浮 */
+  .md-table-edit .md-resize-table:hover .ty-menu {
+    animation: ep-pop 0.42s var(--ep-ease-out);
+  }
+
+  .md-table-edit .md-align-left:hover .ty-left-alignment {
+    animation: ep-nudge-left 0.48s var(--ep-ease-out);
+  }
+
+  .md-table-edit .md-align-center:hover .ty-justify-align {
+    animation: ep-pinch 0.48s var(--ep-ease-out);
+  }
+
+  .md-table-edit .md-align-right:hover .ty-right-alignment {
+    animation: ep-nudge-right 0.48s var(--ep-ease-out);
+  }
+
+  .md-table-edit .md-delete-table:hover .ty-delete {
+    animation: ep-shake 0.45s var(--ep-ease-out);
+  }
+
+  .md-table-edit .md-table-more:hover .ty-dots-v {
+    animation: ep-tick-up 0.44s var(--ep-ease-out);
+  }
+
+  /* 插件标签页：关闭键 × 摇动警示；加号只动两道横杠、底色块
+     固定不动（此前动画加在色块容器上，悬停时整块底色跟着胀缩），
+     两道杠各带自身平移与旋转姿态做同拍轻弹 */
+  #plugin-window-tab .close-button:hover .close-icon {
+    animation: ep-shake 0.45s var(--ep-ease-out);
+  }
+
+  #plugin-window-tab .add-button:hover .add-icon::before {
+    animation: ep-plus-pop-h 0.42s var(--ep-ease-out);
+  }
+
+  #plugin-window-tab .add-button:hover .add-icon::after {
+    animation: ep-plus-pop-v 0.42s var(--ep-ease-out);
+  }
+}
+
+/* 字数面板两档式：数值列是主内容，提亮为正文色；标签列保持
+   幽灵弱色。列序为值在前、标签在后（td:nth-child(1) 是数值）；
+   顶部小标题行维持原生 0.7 透明度的幽灵态 */
+.ty-footer-word-count-all td:nth-child(1) {
+  color: var(--ep-text);
+}
+
+.ty-footer-word-count-all td:nth-child(2) {
   color: var(--ep-text-secondary);
 }
 
@@ -3834,6 +4282,45 @@ footer.ty-footer .footer-item:active {
   background-color: rgb(202 122 122 / 22%);
   box-shadow: inset 0 0 0 1px rgb(202 122 122 / 32%);
   transform: scale(0.98);
+}
+
+/* 拼写检查面板：菜单 UI 字体（霞鹜文楷）；筛选输入框重绘为
+   主题暗色字段，聚焦时绿色描边加一圈淡光晕，与浮层同语言 */
+#spell-check-panel {
+  font-family: var(--ep-font-ui);
+}
+
+#spell-check-panel input {
+  margin: 0 10px 8px;
+  padding: 5px 10px;
+  font-family: var(--ep-font-ui);
+  font-size: 13px;
+  color: var(--ep-text);
+  background: rgb(255 255 255 / 4%);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-tip);
+  outline: none;
+  transition: border-color var(--ep-speed) var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease),
+    box-shadow var(--ep-speed) var(--ep-ease);
+}
+
+#spell-check-panel input::placeholder {
+  color: var(--ep-text-secondary);
+}
+
+#spell-check-panel input:focus {
+  background: rgb(255 255 255 / 6%);
+  border-color: rgb(167 192 128 / 45%);
+  box-shadow: 0 0 0 3px rgb(167 192 128 / 12%);
+}
+
+/* 拼写面板抬离工具行：原生 bottom 32px 时面板锚在窗口右缘，
+   正下方压到的是相邻的字数统计胶囊而非自己的触发钮，上移到
+   44px 留出距离；字数统计面板的锚点就在自己胶囊正上方，
+   原生 32px 即为贴合位，不随动 */
+body #spell-check-panel {
+  bottom: 44px;
 }
 
 /* 菜单图标按钮行：四枚按钮独立成卡，按钮间留 4px 间隙，
@@ -5215,13 +5702,24 @@ footer.ty-footer .footer-item:active {
   translate: 0 -1px;
 }
 
-.ty-preferences .input-group-header::before {
+/* 竖条锚定标题 span：块级化后定位框就是标题块。渲染实测（同字体
+   同行高）：Chromium/Windows 取 win 度量表并取整，内容区 26px
+   （上伸 21 + 下伸 5），38px 行盒内基线在 27px，中文墨迹占
+   11～29px，中心 20px；锚点 top 12 / bottom 10 中心对准 20px，
+   单行 16px。标题换行时条随块拉满两行，组内说明小字在标题块
+   之外，不会被条盖住 */
+.ty-preferences .input-group-header-title {
+  position: relative;
+  display: block;
+}
+
+.ty-preferences .input-group-header-title::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 11px;
+  left: -14px;
+  top: 12px;
+  bottom: 10px;
   width: 2px;
-  height: 16px;
   border-radius: 2px;
   background: rgb(167 192 128 / 45%);
 }
@@ -5290,6 +5788,15 @@ footer.ty-footer .footer-item:active {
 }
 
 .ty-preferences .row:has(> .radio)::before {
+  content: none;
+  display: none;
+}
+
+/* 勾选行（checkbox row）同样吃 .row:before 垫片：零宽空格
+   inline-block 高 100% 再加 3px 顶距，行盒被撑到 42.29px，
+   文字随半行距下沉 2.7px。去垫片后行盒回归 38px，文字墨迹
+   中心与标签行、下拉行同轴（实测均在行顶下 20px） */
+.ty-preferences .checkbox::before {
   content: none;
   display: none;
 }
@@ -5414,7 +5921,7 @@ footer.ty-footer .footer-item:active {
   margin: 0 0 6px;
 }
 
-/* 勾选框行与 .row 共用 38px 行撑，字形基线与单选行完全一致 */
+/* 勾选框行与 .row 共用 38px 行撑（垫片去除后行盒为净 38px） */
 .ty-preferences .input-group-content .checkbox {
   line-height: 38px;
 }
@@ -5766,7 +6273,7 @@ footer.ty-footer .footer-item:active {
   background-color: rgb(167 192 128 / 10%) !important;
 }
 
-/* 勾选框、单选框与行文字共用 38px 行中心，去掉原生 10px 外边距 */
+/* 去掉原生 10px 外边距，行距由行高与内容列 8px 间距决定 */
 .ty-preferences .checkbox,
 .ty-preferences .radio {
   margin: 0;
@@ -5780,14 +6287,30 @@ footer.ty-footer .footer-item:active {
   line-height: 38px;
 }
 
-/* 中文字形在 38px 行盒内整体偏低约 3px，
-   勾选框同步下移 3px，与右侧文字的字形中心对齐 */
+/* 勾选行标签原为 inline-block 并被原生 vertical-align: middle
+   抬进垫片对齐体系；垫片移除后改回内联基线流，行盒不再被
+   38px 高的行内块撑出溢出，行内小字说明保持在同一行 */
+.ty-preferences .checkbox > label {
+  display: inline;
+  vertical-align: baseline;
+}
+
+/* 方块锚定行内文字墨迹中心（38px 行盒实测 20px，与竖条、
+   下拉行同轴）；单选行只服务于字体大小 26px 矮行盒（span.radio），
+   仍按旧档 22px，不参与本轮归位 */
 .ty-preferences .checkbox > label > input[type='checkbox'],
 .ty-preferences .radio > label > input[type='radio'] {
-  top: 22px;
   margin-top: 0;
   margin-left: -27px;
   transform: translateY(-50%);
+}
+
+.ty-preferences .checkbox > label > input[type='checkbox'] {
+  top: 20px;
+}
+
+.ty-preferences .radio > label > input[type='radio'] {
+  top: 22px;
 }
 
 /* 按钮：幽灵次按钮 + 绿色主按钮，与菜单页按钮同一套过渡 */
@@ -6338,9 +6861,12 @@ body #plugin-action-buttons .action-item:active {
   transition: transform 120ms var(--ep-ease);
 }
 
+/* 关闭键悬停：红染底 + 图标提亮为主题红档，与菜单删除键同语义；
+   × 的两道横杠用 currentColor 绘制，改 color 即改图标颜色 */
 #plugin-window-tab .close-button:hover {
   border-radius: var(--ep-radius-tip);
-  color: var(--ep-green-bright);
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
 }
 
 #plugin-window-tab .close-button:active {
@@ -6348,11 +6874,23 @@ body #plugin-action-buttons .action-item:active {
 }
 
 #plugin-window-tab .add-icon {
-  transition: transform 120ms var(--ep-ease);
+  transition: transform 120ms var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease);
 }
 
 #plugin-window-tab .add-button:active .add-icon {
   transform: scale(0.9);
+}
+
+/* 加号键悬停：绿染底替代插件原灰变量（body 前缀抬高特异性，
+   插件样式注入顺序在主题之后也稳赢），图标点亮为绿亮色，
+   与各工具行按钮的高亮语言一致 */
+body #plugin-window-tab .add-button:hover {
+  color: var(--ep-green-bright);
+}
+
+body #plugin-window-tab .add-button:hover .add-icon {
+  background-color: rgb(167 192 128 / 14%);
 }
 
 /* --------------------------------------------------------------------------
