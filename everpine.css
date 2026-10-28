@@ -203,6 +203,68 @@ content {
     0 8px 20px rgb(167 192 128 / 6%);
 }
 
+/* 窗口基线：无框模式页内自绘顶栏占 28px；经典模式（body.native-window，
+   系统标题栏与菜单栏在页面视口之外）页内从 0 起算，页签栏贴 0～40px。
+   下方避让几何统一引用此变量，两种窗口模式共用同一套规则 */
+body {
+  --ep-top-baseline: 28px;
+}
+
+body.native-window {
+  --ep-top-baseline: 0px;
+}
+
+/* window_tab 插件页签避让（主题要分发给未装插件的用户，规则只在
+   插件的页签栏实际可见时生效）：插件栏 #plugin-window-tab 固定在
+   基线之下 0～40px（--wt-tab-height），隐藏时插件给它挂
+   plugin-common-hidden 类（display:none），:has 探测即随显隐联动；
+   插件自身靠 JS 给 content 写内联 top 补偿，但只在装载与页签数
+   变化时执行，Typora 的布局事件改写或清掉内联值后不再补，标题
+   跳转落回卡顶被页签盖住；这里用 !important 把卡顶钉死在
+   基线(var) + 页签(40) + 网格缝(8)，状态恒定；搜索面板态由本文件
+   后段规则接管（面板顶与 content 镜像各分无插件/有插件两档），
+   此处排除避免双 !important 竞争；菜单页 content 被全屏面板覆盖，
+   排除以免误伤；:has 需 Chromium 105+，Typora 1.14 引擎满足，
+   不满足时规则整体失效退回插件自身行为 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened):not(.on-search-panel-open) content {
+  top: calc(var(--ep-top-baseline) + 40px + 8px) !important;
+}
+
+/* 大纲跳转落点修正：scrollAdjust 把目标标题钉在「窗口顶 + 10 +
+   #top-titlebar 高度」处（y 取顶栏的 jQuery height），从不感知正文
+   卡实际顶到多低；卡顶被上一条规则压到基线+48px 后，标题落点落进
+   卡顶上方的裁剪区，跳转后只见标题下面的内容。让顶栏的测量高度与
+   卡顶一致（同一组守卫、同一 calc），标题即落在卡顶下方 10px；
+   经典模式下该元素以 display:none 保留在 DOM 中，jQuery 仍能测得
+   此处写入的高度，跳转落点两种模式一致；
+   菜单页与搜索面板态不参与（菜单页无跳转，搜索态 y 另加面板高，
+   维持原行为）；顶栏加高段为透明空条，视觉不变，
+   无框模式下窗口拖拽热区随之扩到卡顶上缘 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened):not(.on-search-panel-open) #top-titlebar {
+  height: calc(var(--ep-top-baseline) + 40px + 8px) !important;
+  background: transparent;
+}
+
+/* 页签栏抬到原生 header 之上并退出拖拽区：header（z-index 900）是
+   顶栏的父容器，顶栏加高后其 -webkit-app-region: drag 在窗口管理器
+   一层罩住 28～68px 的整条页签栏，悬停与点击被系统当作拖拽吞掉
+   （该层裁决在渲染器之外，z-index 无效）；z-index 901 越过 header
+   恢复渲染器内的命中，no-drag 把页签栏从系统拖拽区里抠出，两层
+   都需要。守卫只排除菜单页：搜索面板态必须维持同一 z-index，
+   开面板瞬间若从 901 掉回 898（面板与 header 之下），绘制序重排
+   触发页签栏层重栅格，合成器会呈现 1～3 帧未完成的瓦片，绿条
+   随之消失或半宽（表现为闪一下）；搜索态常开同时让面板打开时
+   页签悬停不失效 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened) #plugin-window-tab {
+  z-index: 901;
+  -webkit-app-region: no-drag;
+}
+
+/* 查找/替换面板对页签绿条无需任何规则：面板原生 .show() 即时显示，
+   没有滑入动画；开合全程页签元素与 .active 类零变化，绿条样式恒定。
+   开面板瞬间的绿条闪烁由页签栏绘制属性随类翻转变化引起，
+   修复在上条规则（搜索态维持 z-index 901，绘制序不再重排） */
+
 /* 滚动条轨道上下内缩，滑块不顶到卡片圆角 */
 content::-webkit-scrollbar-track {
   margin-top: 18px;
@@ -2118,25 +2180,31 @@ input[type='radio']:checked::after {
   height: 52px;
 }
 
-/* 大纲过滤态：× 收进输入框右端内侧并垂直居中（原生没有 top 定位，
-   静态位置悬在框外右上角）；图标改用 CSS 双线绘制，不依赖 ionicons
-   字形，该字形在主题字体回退下会渲染成箭头 */
+/* 大纲过滤态：× 收进输入框右端内侧（原生没有 top 定位，静态位置悬在
+   框外右上角）；图标改用 CSS 双线绘制，不依赖 ionicons 字形，该字形
+   在主题字体回退下会渲染成箭头。悬停块不随输入框整高：整高方块的
+   方角与输入框圆角相撞、红染发闷，收成 22px 圆形chip并锚定输入框
+   竖直中心 */
+#file-library-search-panel {
+  padding: 10px 12px 12px !important;
+}
+
 #close-outline-filter-btn {
   position: absolute !important;
-  top: 10px !important;
-  right: 16px !important;
+  top: 14px !important; /* 输入框中心 25px（面板顶内边距 10 + 输入框半高 15）减半高 11px */
+  right: 20px !important;
   bottom: auto !important;
   left: auto !important;
   box-sizing: border-box !important;
-  width: 30px !important;
-  height: 30px !important;
+  width: 22px !important;
+  height: 22px !important;
   margin: 0 !important;
   padding: 0 !important;
   font-size: 0;
   line-height: 0;
   color: var(--ep-text-secondary);
   opacity: 1;
-  border-radius: var(--ep-radius-tip);
+  border-radius: 50% !important;
   transition: color var(--ep-speed) var(--ep-ease),
     background-color var(--ep-speed) var(--ep-ease),
     transform var(--ep-speed) var(--ep-ease);
@@ -2146,13 +2214,12 @@ input[type='radio']:checked::after {
   display: none;
 }
 
-/* 双线固定锚点定位：竖直中心在按钮盒顶缘下方 15px（与输入框同心），
-   不依赖按钮盒的实际高度 */
+/* 双线锚定按钮盒中心（top 50% + 负半高外边距），盒尺寸变化不再错位 */
 #close-outline-filter-btn::before,
 #close-outline-filter-btn::after {
   content: '';
   position: absolute;
-  top: 14px;
+  top: 50%;
   left: 50%;
   width: 12px;
   height: 1.6px;
@@ -2399,7 +2466,7 @@ input[type='radio']:checked::after {
 }
 
 /* 行悬停：无底色、无竖条，亮绿字 + 上浮 1px + 极淡绿光晕；
-   悬停竖条无主流产品先例（竖条是选中态语言），调研后弃用 */
+   悬停竖条无主流产品先例（竖条是选中态语言），故不使用 */
 .file-library-node:hover > .file-node-content,
 .file-library-file-node:hover > .file-node-content {
   color: var(--ep-green-bright);
@@ -2925,14 +2992,16 @@ li.outline-item-wrapper.outline-h6 > .outline-item > .outline-label {
   color: var(--ep-grey);
 }
 
-/* 大纲选项悬停：绿微光底 + 圆角；投影走 filter，
-   box-shadow 通道让给高亮闪烁的摘类淡出（见 .blink-area 注释） */
+/* 大纲选项悬停：中性白叠加底（对 h1～h6 各级颜色等距，混搭色不相斥；
+   8% 取 Material 状态层 hover 档值，悬停激活项共用这单层，
+   组合态不叠加）+ 圆角；投影走 filter，box-shadow 通道让给
+   高亮闪烁的摘类淡出（见 .blink-area 注释） */
 li.outline-item-wrapper > .outline-item:hover {
   margin-left: 2px;
   margin-right: 2px;
   border-left: none;
   border-right: none;
-  background-color: var(--ep-hover-green);
+  background-color: rgb(255 255 255 / 8%);
   border-radius: var(--ep-radius-chip);
   filter: drop-shadow(0 1px 4px rgb(0 0 0 / 25%));
 }
@@ -3015,9 +3084,29 @@ body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outli
   }
 }
 
-.pin-outline #outline-content .outline-active strong,
-.pin-outline .outline-active {
-  color: var(--ep-text) !important;
+/* 大纲交互态（悬停瞬态高亮、激活白字淡线，两态底色不同故两套配色）：
+   激活：文字白 var(--ep-text)（#c9d3cc，主题为大纲底设计的白，
+   对大纲底 12.5:1，非亮白），无底色，标记是 55% 淡白线
+   （rgb(201 211 204 / 55%)，呈现 #747b76，对大纲底 4.4:1，
+   比实色线柔和，不构成高亮感），不加粗（字库只有 Regular
+   一档，700 为合成加粗笔画发糊，压回 400 与同级标题同形态）；
+   悬停：有 8% 白雾底（呈现 #1f2321），文字亮白 #d8e0db 针对该底
+   设计（亮度 0.73，低于刺眼档 0.86，对比 11.8:1），线为主题绿
+   实色（7.9:1）；
+   悬停激活项与悬停同观感，移开后线 0.4s 由绿淡回淡白、文字回落；
+   动画：文字 color 0.3s，线宽 background-size 0.3s，
+   线色走下方注册的 --ep-outline-line 属性 0.4s 插值
+   （Blink 不对 background-image 渐变做过渡，Chrome 146 实测
+   瞬时跳变；注册为 <color> 的自定义属性可逐帧插值，渐变每帧
+   重算即得平滑交叉淡化，且保留 background-size 生长动画与
+   换行条目的逐行下划线），底 0.15s，无瞬间跳色；
+   注意 Typora 把 outline-active 直接加在 .outline-label 元素自身上
+   （frame.js 的 addClass 链），钩它必须用复合选择器，
+   后代选择器 .outline-active .outline-label 匹配不到任何节点 */
+@property --ep-outline-line {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgb(201 211 204 / 55%);
 }
 
 .pin-outline .outline-label {
@@ -3025,15 +3114,28 @@ body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outli
   display: inline;
   padding-bottom: 3px;
   text-decoration: none;
-  background-image: linear-gradient(to right, rgb(167 192 128 / 70%) 50%, rgb(167 192 128 / 70%) 50%);
+  background-image: linear-gradient(to right, var(--ep-outline-line) 50%, var(--ep-outline-line) 50%);
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: 0% 2px;
-  transition: background-size 0.4s var(--ep-ease);
+  transition: color 0.3s var(--ep-ease),
+    background-size 0.3s var(--ep-ease),
+    --ep-outline-line 0.4s var(--ep-ease);
 }
 
 .pin-outline .outline-item:hover .outline-label {
+  color: #d8e0db !important;
+  --ep-outline-line: #a7c080;
+  background-size: 100% 2px;
+}
+
+.pin-outline .outline-label.outline-active {
   color: var(--ep-text) !important;
+  /* 压掉 base-control.css 的 .pin-outline .outline-active
+     font-weight:700：主题字库只有 Regular 一档，700 走合成加粗、
+     笔画发糊，回到 400 与同级标题同形态；标题内容自带的
+     strong 保留加粗（同非激活项的渲染） */
+  font-weight: 400;
   background-size: 100% 2px;
 }
 
@@ -3327,6 +3429,22 @@ footer.ty-footer .footer-item:active {
     100% { transform: rotate(0); }
   }
 
+  /* 大纲过滤 ×：两道杠绕同一盒心反相拧动（动画会整体替换 transform，
+     关键帧必须各自携带 45°/-45° 基础角，否则 × 在动画期塌成一字） */
+  @keyframes ep-filter-x-a {
+    0% { transform: rotate(45deg); }
+    30% { transform: rotate(32deg); }
+    60% { transform: rotate(52deg); }
+    100% { transform: rotate(45deg); }
+  }
+
+  @keyframes ep-filter-x-b {
+    0% { transform: rotate(-45deg); }
+    30% { transform: rotate(-52deg); }
+    60% { transform: rotate(-32deg); }
+    100% { transform: rotate(-45deg); }
+  }
+
   /* 加号两道杠的同拍轻弹：关键帧内各自保留基础平移与旋转，
      替换式动画不会把横杠姿态抖掉；缩放围绕杠自身中心，
      加号从中心放大，底色块保持静止 */
@@ -3539,6 +3657,30 @@ footer.ty-footer .footer-item:active {
 
   #plugin-window-tab .add-button:hover .add-icon::after {
     animation: ep-plus-pop-v 0.42s var(--ep-ease-out);
+  }
+
+  /* 大纲过滤 ×：双线反相拧动，与页签关闭叉同一「摇动警示」语义 */
+  #close-outline-filter-btn:hover::before {
+    animation: ep-filter-x-a 0.42s var(--ep-ease-out);
+  }
+
+  #close-outline-filter-btn:hover::after {
+    animation: ep-filter-x-b 0.42s var(--ep-ease-out);
+  }
+
+  /* 查找面板导航：上一个箭头上浮回弹，下一个下压回弹，方向随语义 */
+  #md-searchpanel #search-panel-prev:hover .ion-chevron-up {
+    animation: ep-tick-up 0.44s var(--ep-ease-out);
+  }
+
+  #md-searchpanel #search-panel-next:hover .ion-chevron-down {
+    animation: ep-tick-down 0.44s var(--ep-ease-out);
+  }
+
+  /* 关闭键 ×：摇动，与页签关闭叉同语言同拍（图标已统一为
+     ion-close-round，两模式同一字形） */
+  #md-searchpanel .close-btn:hover .ion-close-round {
+    animation: ep-shake 0.45s var(--ep-ease-out);
   }
 }
 
@@ -4284,6 +4426,27 @@ footer.ty-footer .footer-item:active {
   transform: scale(0.98);
 }
 
+/* 插件三级菜单「(危险) 格式化所有代码块缩进」：fence_enhance 的
+   indent_all_fences，语言包内唯一带危险标记的菜单项；插件子菜单复用
+   dropdown-menu 类，红档三态数值与 delete 前缀规则一致 */
+.dropdown-menu:not(.megamenu-menu-list) li[data-key='indent_all_fences'] > a {
+  color: #ca7a7a;
+}
+
+.dropdown-menu:not(.megamenu-menu-list) li[data-key='indent_all_fences'] > a:hover,
+.dropdown-menu:not(.megamenu-menu-list) li[data-key='indent_all_fences'] > a:focus {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 28%);
+}
+
+.dropdown-menu:not(.megamenu-menu-list) li[data-key='indent_all_fences'] > a:active {
+  color: #efb5b5;
+  background-color: rgb(202 122 122 / 22%);
+  box-shadow: inset 0 0 0 1px rgb(202 122 122 / 32%);
+  transform: scale(0.98);
+}
+
 /* 拼写检查面板：菜单 UI 字体（霞鹜文楷）；筛选输入框重绘为
    主题暗色字段，聚焦时绿色描边加一圈淡光晕，与浮层同语言 */
 #spell-check-panel {
@@ -4791,12 +4954,31 @@ body #spell-check-panel {
   left: calc(var(--sidebar-width) + 16px) !important;
 }
 
+/* 有页签栏时面板整体下移到栏底之下：页签栏底缘 = 基线(var) + 40，
+   原 36px 顶的首行（查找输入行）在无框模式下被栏盖住约七成，
+   上一个、下一个、收起键只露出 8px 条带，悬停与点击大半命中页签栏；
+   面板顶 = 栏底 + 网格缝 8。无插件用户仍用上方规则的 36px 顶 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened) #md-searchpanel {
+  top: calc(var(--ep-top-baseline) + 40px + 8px) !important;
+}
+
 .on-search-panel-open content {
   top: 100px !important;
 }
 
 .on-search-panel-open.on-replace-panel-open content {
   top: 144px !important;
+}
+
+/* content 镜像随面板顶分档：有页签栏时面板顶 = 基线(var) + 48，
+   面板高 56（内边距 20 + 行 34 + 边框 2），加 8px 缝；
+   替换态多一行 34 + 行距 10 = +44。无插件用户用上面两条 100/144 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on-search-panel-open content {
+  top: calc(var(--ep-top-baseline) + 40px + 8px + 56px + 8px) !important;
+}
+
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on-search-panel-open.on-replace-panel-open content {
+  top: calc(var(--ep-top-baseline) + 40px + 8px + 56px + 8px + 44px) !important;
 }
 
 /* 三列两行网格：标签、输入框、右侧控制各占一列。
@@ -5034,7 +5216,10 @@ body #spell-check-panel {
 }
 
 /* 右侧导航与替换按钮：固定尺寸的无底色控件，
-   与同排输入框共用 34px 行高，竖向中线和输入框一致 */
+   与同排输入框共用 34px 行高，竖向中线和输入框一致。
+   基座刻意不带 color 与 background：本规则特异性 1-4-1，
+   高于各键自己的悬停/按下声明，颜色写在这里会盖住关闭键的
+   红染与导航键的绿染，颜色一律由各键专属规则声明 */
 #searchpanel-search-group > div:last-child .input-group-addon.btn {
   display: inline-flex;
   align-items: center;
@@ -5045,22 +5230,11 @@ body #spell-check-panel {
   height: 26px;
   margin: 0;
   padding: 0 !important;
-  color: var(--ep-text-secondary);
-  background: transparent;
   border: none !important;
   border-radius: 5px;
   transition: background-color var(--ep-speed) var(--ep-ease),
     color var(--ep-speed) var(--ep-ease),
     transform 120ms var(--ep-ease);
-}
-
-#searchpanel-search-group > div:last-child .input-group-addon.btn:hover {
-  color: var(--ep-green-bright);
-  background-color: var(--ep-hover-green);
-}
-
-#searchpanel-search-group > div:last-child .input-group-addon.btn:active {
-  transform: scale(0.92);
 }
 
 #md-searchpanel #search-panel-status {
@@ -5134,6 +5308,23 @@ body #spell-check-panel {
   transform: scale(0.96) !important;
 }
 
+/* 图标统一为关闭 ×：此键的功能是 closePanel 让整卡消失，
+   是 Esc 的指针等价物；折叠替换行是左侧类型切换键的职责。
+   原生无框模式显示 ty-upload 上推字形、经典模式显示
+   ion-close-round ×，同一行为两种图标，统一取 ×，与页签
+   关闭叉、侧栏过滤 × 构成一致的关闭语言。ion 字形原生带
+   6px/2px 非对称内边距（旧 table-cell 布局遗物），在弹性盒
+   居中下会右偏，一并清零 */
+#md-searchpanel .close-btn .ion-close-round {
+  display: inline-block !important;
+  padding: 0 !important;
+  line-height: 1;
+}
+
+#md-searchpanel .close-btn .ty-upload {
+  display: none !important;
+}
+
 #md-searchpanel .close-btn {
   color: var(--ep-text-secondary);
   transition: background-color var(--ep-speed) var(--ep-ease),
@@ -5141,13 +5332,52 @@ body #spell-check-panel {
     transform 120ms var(--ep-ease);
 }
 
+/* 悬停取页签关闭叉同款关闭语义：哑光玫瑰面 + 红图标，摇动动画在
+   reduced-motion 块；按下与页签同档 0.88 */
 #md-searchpanel .close-btn:hover {
+  color: #e8a7a7;
+  background-color: rgb(202 122 122 / 16%);
+}
+
+#md-searchpanel .close-btn:active {
+  transform: scale(0.88);
+}
+
+/* 上一个/下一个导航键：原生 addon 带灰底与直角边框，归入主题语言；
+   悬停绿染与收起键同面，动画加在箭头图标子元素上，底色块不参与形变 */
+#md-searchpanel #search-panel-prev,
+#md-searchpanel #search-panel-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--ep-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--ep-radius-tip);
+  transition: background-color var(--ep-speed) var(--ep-ease),
+    color var(--ep-speed) var(--ep-ease),
+    transform 120ms var(--ep-ease);
+}
+
+#md-searchpanel #search-panel-prev:hover,
+#md-searchpanel #search-panel-next:hover {
   color: var(--ep-green-bright);
   background-color: var(--ep-hover-green);
 }
 
-#md-searchpanel .close-btn:active {
+#md-searchpanel #search-panel-prev:active,
+#md-searchpanel #search-panel-next:active {
   transform: scale(0.92);
+}
+
+/* 箭头字形收紧行盒，位移动画围绕图标中心而不是行盒中心 */
+#md-searchpanel #search-panel-prev .ion-chevron-up,
+#md-searchpanel #search-panel-next .ion-chevron-down {
+  display: block;
+  line-height: 1;
 }
 
 /* --------------------------------------------------------------------------
@@ -6818,7 +7048,10 @@ body #plugin-action-buttons .action-item:active {
     transform 120ms var(--ep-ease);
 }
 
-#plugin-window-tab .tab-container:hover {
+/* 悬停底色与关闭键染红都加 body 前缀提特异性：插件样式注入在主题
+   之后，同优先级时插件的 .active 底色与 --wt-active-bg-color 会
+   压掉这里的悬停色（body 前缀即稳赢，与下方加号键同一手法） */
+body #plugin-window-tab .tab-container:hover {
   background-color: rgb(255 255 255 / 5%);
   border-radius: var(--ep-radius-chip) !important;
 }
@@ -6863,7 +7096,7 @@ body #plugin-action-buttons .action-item:active {
 
 /* 关闭键悬停：红染底 + 图标提亮为主题红档，与菜单删除键同语义；
    × 的两道横杠用 currentColor 绘制，改 color 即改图标颜色 */
-#plugin-window-tab .close-button:hover {
+body #plugin-window-tab .close-button:hover {
   border-radius: var(--ep-radius-tip);
   color: #e8a7a7;
   background-color: rgb(202 122 122 / 16%);
