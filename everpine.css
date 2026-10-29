@@ -239,8 +239,13 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened):no
    此处写入的高度，跳转落点两种模式一致；
    菜单页与搜索面板态不参与（菜单页无跳转，搜索态 y 另加面板高，
    维持原行为）；顶栏加高段为透明空条，视觉不变，
-   无框模式下窗口拖拽热区随之扩到卡顶上缘 */
-body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened):not(.on-search-panel-open) #top-titlebar {
+   无框模式下窗口拖拽热区随之扩到卡顶上缘；
+   偏好设置面板态必须排除：面板 fixed 定位从 y=28 起（Typora 写死，
+   不随顶栏加高下移），加高的拖拽区在浏览器层吞掉面板头部上段
+   48px 的悬停与点击（返回标题与关闭键正在其中，app-region:none
+   抵消不了拖拽区），面板头部只剩底部细条可交互；排除后面板
+   打开期间拖拽条收回 28px，主窗口状态不受影响 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened):not(.on-search-panel-open):not(.show-preference-panel) #top-titlebar {
   height: calc(var(--ep-top-baseline) + 40px + 8px) !important;
   background: transparent;
 }
@@ -1470,6 +1475,9 @@ figure {
   content: attr(lang);
   pointer-events: none;
 }
+
+
+
 
 /* typora_plugin 代码块右上角三按钮：恒无底色，悬停浮起 2px 变绿加淡光晕，
    按压回落原位并轻缩，与浮起构成一进一出的位移闭环 */
@@ -5455,7 +5463,9 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   position: relative;
   box-sizing: border-box;
   margin: 0;
-  padding: 8px 18px 8px 10px;
+  /* 左内边距 16px：给热区内的返回箭头留位（箭头宽 14px 落在
+     0～14px 段，文字缩进 16px），悬停右移后间隙 18px */
+  padding: 8px 18px 8px 16px;
   /* 显式钉在网格起点并左对齐：经典与一体化模式下，原生对齐会让
      标题在格内漂移约 19px，箭头位置按左对齐重新校准 */
   justify-self: start;
@@ -5469,6 +5479,10 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0.02em;
+  /* 命中一律交给上层热区按钮：h2 悬停位移用 transform 承载，
+     transform 会把命中区一并右移 16px，滑出胶囊的 h2 反向罩住
+     光标，形成 16px 宽的悬停陷阱条带；关掉自身命中即消除 */
+  pointer-events: none;
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     color var(--ep-speed) var(--ep-ease);
 }
@@ -5481,7 +5495,7 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   content: '';
   position: absolute;
   top: 50%;
-  left: -6px;
+  left: 0;
   width: 14px;
   height: 14px;
   margin-top: -7px;
@@ -5514,9 +5528,9 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   }
 }
 
-/* 悬停：视觉浮现只由文字胶囊自身的悬停驱动（扩展出来的触发环
-   仅承接点击，不点亮箭头）；文字右移让位，箭头延迟 40ms 跟进，
-   形成先后节奏；按下时文字稍回撤、箭头收拢；点击即返回文档 */
+/* 悬停：热区内任意位置点亮箭头（热区范围见 back 按钮注释）；
+   文字右移让位，箭头延迟 40ms 跟进，形成先后节奏；
+   按下时文字稍回撤、箭头收拢；点击即返回文档 */
 .ty-preferences .window-header-title:hover h2 {
   color: #fff;
   transform: translateX(16px);
@@ -5539,16 +5553,19 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   transform: translateX(0) scale(0.92);
 }
 
-/* back 按钮：与标题同格铺满文字胶囊承接点击。双向拉伸后负外边距
-   才能把热区向上下右各再扩展一圈（居中定位下负外边距不增长盒子），
-   左侧维持原有富余。选择器带 .window-header，以压过 34px 定宽 */
+/* back 按钮：与标题同格铺满承接点击，负外边距把热区向上下各扩
+   6px、右侧扩 24px，扩出段与文字同为同一悬停与点击范围
+   （标题 pointer-events:none，扩出不引发悬停陷阱）。
+   经典模式下原生以 display:none 收起该键，显式声明 block 保住
+   两种模式的导航；选择器带 .window-header，以压过 34px 定宽 */
 .ty-preferences .window-header .window-header-back {
   z-index: 1;
+  display: block;
   align-self: stretch;
   justify-self: stretch;
   width: auto;
   height: auto;
-  margin: -10px -20px -10px 0;
+  margin: -6px -24px -6px 0;
   padding: 0;
   cursor: pointer;
   background: transparent;
@@ -5615,8 +5632,10 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   fill: currentColor;
 }
 
-/* 关闭键：柔和的玫瑰底色，红色停留在哑光表面与图标上 */
+/* 关闭键：柔和的玫瑰底色，红色停留在哑光表面与图标上；
+   原生自带 margin-top: -2px 使键体偏离顶栏中线约 1px，归零对中 */
 .ty-preferences .window-header .header-close {
+  margin-top: 0;
   margin-left: auto;
   visibility: visible !important;
   color: var(--ep-text-secondary);
