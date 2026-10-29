@@ -191,7 +191,9 @@ body {
   caret-color: var(--ep-green);
 }
 
-/* 卡片描边：外圈白细线 + 顶边内高光 + 极淡绿光投影 */
+/* 卡片描边：外圈白细线 + 顶边内高光 + 极淡绿光投影。
+   两卡同级同款阴影：同一 7% 描边、同一内高光、同一绿光轻投影，
+   层级关系交给 8px 缝隙与底色差表达 */
 content {
   right: 8px !important;
   bottom: 8px !important;
@@ -2032,15 +2034,12 @@ input[type='radio']:checked::after {
   background: var(--ep-bg-sidebar);
   border-radius: var(--ep-radius-card);
   /* 原生 window.css 在 #typora-sidebar 上写死 box-shadow:none，
-     主题规则必须 !important 才能显示。目录卡底色更深，参数独立：
-     8% 描边、内右高光、接触与环境暗影、8% 定向绿光；
-     正文卡保持 6% / 20px 的全向淡光 */
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%),
-    inset 0 1px 0 rgb(255 255 255 / 6%),
-    inset -1px 0 0 rgb(255 255 255 / 4%),
-    0 2px 5px rgb(0 0 0 / 50%),
-    0 14px 32px rgb(0 0 0 / 45%),
-    4px 6px 26px rgb(167 192 128 / 8%) !important;
+     主题规则必须 !important 才能显示。两卡同级同款阴影：与正文卡
+     完全一致的 7% 描边、内高光与绿光轻投影，两卡观感一致，
+     层级关系交给 8px 缝隙与底色差表达 */
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 7%),
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 8px 20px rgb(167 192 128 / 6%) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -3653,8 +3652,7 @@ footer.ty-footer .footer-item:active {
   }
 
   /* 插件标签页：关闭键 × 摇动警示；加号只动两道横杠、底色块
-     固定不动（此前动画加在色块容器上，悬停时整块底色跟着胀缩），
-     两道杠各带自身平移与旋转姿态做同拍轻弹 */
+     固定不动，两道杠各带自身平移与旋转姿态做同拍轻弹 */
   #plugin-window-tab .close-button:hover .close-icon {
     animation: ep-shake 0.45s var(--ep-ease-out);
   }
