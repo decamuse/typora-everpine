@@ -3007,9 +3007,10 @@ li.outline-item-wrapper.outline-h6 > .outline-item > .outline-label {
 }
 
 /* 大纲选项悬停：中性灰绿叠加底（对 h1～h6 各级颜色等距，混搭色不相斥；
-   10% 取 Material 状态层 hover 档值，悬停激活项共用这单层，
-   组合态不叠加）+ 圆角；投影走 filter，box-shadow 通道让给
-   高亮闪烁的摘类淡出（见 .blink-area 注释） */
+   10% 取 Material 状态层 hover 档值）+ 圆角；投影走 filter，
+   box-shadow 通道让给高亮闪烁的摘类淡出（见 .blink-area 注释）；
+   悬停激活项时底色保持激活档（下方 :has 底色卡特异性更高），
+   本规则的投影照常叠加 */
 li.outline-item-wrapper > .outline-item:hover {
   margin-left: 2px;
   margin-right: 2px;
@@ -3018,6 +3019,24 @@ li.outline-item-wrapper > .outline-item:hover {
   background-color: rgb(44 56 48 / 10%);
   border-radius: var(--ep-radius-chip);
   filter: drop-shadow(0 1px 4px rgb(40 50 44 / 8%));
+}
+
+/* 激活项底色卡：当前标题的行级标记，取代常亮下划线。
+   几何与悬停卡一致（两侧内缩 2px、同圆角），底色加重一档到
+   14%（悬停 10%，呈现约 #cdd3cc），选中态强于悬停且两态不叠加；
+   悬停激活项时本规则特异性高于悬停规则，底色保持激活档，
+   投影仍由悬停规则补上；底色变化走 .outline-item 基线的
+   background-color 0.15s 通道，点击切换激活位时新旧两行同速
+   一显一收，交叉淡变，无入场关键帧；
+   用 :has 反选宿主行：Typora 把 outline-active 加在
+   .outline-label 元素自身上，行级底色只能由子元素状态反推 */
+.pin-outline li.outline-item-wrapper > .outline-item:has(.outline-label.outline-active) {
+  margin-left: 2px;
+  margin-right: 2px;
+  border-left: none;
+  border-right: none;
+  background-color: rgb(44 56 48 / 14%);
+  border-radius: var(--ep-radius-chip);
 }
 
 li.outline-item-wrapper > .outline-item {
@@ -3098,14 +3117,14 @@ body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outli
   }
 }
 
-/* 大纲交互态（悬停瞬态高亮、激活深字淡线，两态底色不同故两套配色）：
-   激活：文字 var(--ep-text)（#2f3933，对大纲底 10:1），无底色，
-   标记是 70% 灰绿线（rgb(94 109 99 / 70%)，呈现 #87938a，
-   比实色线柔和，不构成高亮感），不加粗（字库只有 Regular
-   一档，700 为合成加粗笔画发糊，压回 400 与同级标题同形态）；
-   悬停：有 10% 灰绿雾底（呈现 #d4dad3），文字 #33403a 针对该底
+/* 大纲交互态（悬停瞬态下划线、激活行级底色卡，两态标记不同形）：
+   激活：行级底色卡 14% 灰绿（呈现约 #cdd3cc），chip 圆角与悬停卡
+   同几何，无下划线；文字 var(--ep-text)（#2f3933，对该底约 7.8:1），
+   不加粗（字库只有 Regular 一档，700 为合成加粗笔画发糊，
+   压回 400 与同级标题同形态）；
+   悬停：10% 灰绿雾底（呈现 #d4dad3），文字 #33403a 针对该底
    设计（对比 7.6:1），线为主题绿实色；
-   悬停激活项与悬停同观感，移开后线 0.4s 由绿淡回淡白、文字回落；
+   悬停激活项：底色保持激活档，悬停下划线由下方规则压回不出现；
    动画：文字 color 0.3s，线宽 background-size 0.3s，
    线色走下方注册的 --ep-outline-line 属性 0.4s 插值
    （Blink 不对 background-image 渐变做过渡，Chrome 146 实测
@@ -3113,8 +3132,9 @@ body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outli
    重算即得平滑交叉淡化，且保留 background-size 生长动画与
    换行条目的逐行下划线），底 0.15s，无瞬间跳色；
    注意 Typora 把 outline-active 直接加在 .outline-label 元素自身上
-   （frame.js 的 addClass 链），钩它必须用复合选择器，
-   后代选择器 .outline-active .outline-label 匹配不到任何节点 */
+   （frame.js 的 addClass 链），钩标签必须用复合选择器，
+   后代选择器 .outline-active .outline-label 匹配不到任何节点；
+   行级底色卡因此用 :has 反选宿主行（规则在悬停卡之后） */
 @property --ep-outline-line {
   syntax: '<color>';
   inherits: false;
@@ -3141,14 +3161,21 @@ body:not(.no-collapse-outline) .outline-item-open > .outline-children > li.outli
   background-size: 100% 2px;
 }
 
+/* 悬停激活项不叠出下划线：激活标记已是行级底色卡，行的
+   下划线宽度压回 0%，文字微深与投影照常；
+   本选择器比悬停规则多一个 outline-active 类，特性能压住 */
+.pin-outline .outline-item:hover .outline-label.outline-active {
+  background-size: 0% 2px;
+}
+
 .pin-outline .outline-label.outline-active {
   color: var(--ep-text) !important;
   /* 压掉 base-control.css 的 .pin-outline .outline-active
      font-weight:700：主题字库只有 Regular 一档，700 走合成加粗、
      笔画发糊，回到 400 与同级标题同形态；标题内容自带的
-     strong 保留加粗（同非激活项的渲染） */
+     strong 保留加粗（同非激活项的渲染）；激活标记是行级
+     底色卡，下划线只作悬停标记，宽度保持基线 0% */
   font-weight: 400;
-  background-size: 100% 2px;
 }
 
 /* 高亮当前条目（大纲「高亮当前标题」与文件树定位共用 .blink-area）：
@@ -4660,17 +4687,20 @@ body #spell-check-panel {
   transition-duration: 70ms;
 }
 
-/* 主按钮：主题绿实底配深墨字，悬停提亮 */
+/* 主按钮两主题同款：品牌浅绿 rgb(167 192 128) 实底配深墨字，悬停加深一档。
+   不用 var(--ep-green)：浅色主题里该变量是文字级深绿（为浅底对比设计），
+   作填充会形成深色板，深墨字对比掉到约 2.2:1；
+   与导出通知主按钮同一套配方，边框压深一档补轮廓 */
 .modal-dialog .modal-content .btn.btn-primary {
-  color: #26301c;
-  background: var(--ep-green);
-  border-color: transparent;
+  color: #101a12;
+  background: rgb(167 192 128);
+  border-color: rgb(119 145 79 / 45%);
 }
 
 .modal-dialog .modal-content .btn.btn-primary:hover {
-  color: #1e2715;
-  background: var(--ep-green-bright);
-  border-color: transparent;
+  color: #0b120c;
+  background: rgb(150 175 110);
+  border-color: rgb(119 145 79 / 60%);
 }
 
 /* 弹窗遮罩：半透明暗底加轻模糊，与偏好设置一致 */
@@ -4737,6 +4767,22 @@ body #spell-check-panel {
 
 .unibody-window .md-notification-container {
   padding-top: 22px;
+}
+
+/* 通知出现期间把容器抬到顶栏（z 900）与页签栏（z 901）之上：
+   无框模式顶栏被加高成透明拖拽条、页签栏本身是全宽 40px 横条，
+   原生容器 z-index 40 使卡片中段的按钮悬停与点击命中这两层；
+   卡片之外容器仍是 pointer-events:none 的空区，两层自身交互不受影响。
+   搜索面板态与偏好设置态排除，维持原生层级关系 */
+body.ty-show-notification:not(.on-search-panel-open):not(.show-preference-panel) .md-notification-container {
+  z-index: 905;
+}
+
+/* 无框模式下加高的顶栏是系统拖拽区（裁决在渲染器之外，z-index 无效），
+   把卡片从拖拽区里抠出，按钮悬停与点击不被窗口拖动吞掉；
+   隐藏态元素不参与绘制、不产生区域，无需按显隐切换 */
+#md-notification {
+  -webkit-app-region: no-drag;
 }
 
 #md-notification {
@@ -4844,7 +4890,10 @@ body #spell-check-panel {
   line-height: 1.5;
 }
 
-/* 资源管理器按钮：绿色主按钮；关闭：低调幽灵按钮 */
+/* 资源管理器按钮：绿色主按钮；关闭：低调幽灵按钮。
+   悬停与按下不位移不缩放：transform 会同步改变命中几何，
+   悬停上浮在按钮底缘留下约 1px 的悬停抖动带，按下缩小让
+   边缘按下落空；反馈全部交给变色与投影，热区恒等于视觉框 */
 #md-notification .md-notification-content .btn {
   display: inline-flex !important;
   flex: 0 0 auto;
@@ -4865,23 +4914,26 @@ body #spell-check-panel {
   transition: color 180ms var(--ep-ease),
     background-color 180ms var(--ep-ease),
     border-color 180ms var(--ep-ease),
-    box-shadow 180ms var(--ep-ease),
-    transform 160ms var(--ep-ease);
+    box-shadow 180ms var(--ep-ease);
 }
 
+/* 主按钮两主题同款：品牌浅绿 rgb(167 192 128) 实底配深墨字，
+   与深色主题主按钮同色同墨，白卡上观感最轻，墨字对比约 8.7:1；
+   不用 var(--ep-green)：该变量在浅色主题是文字级深绿（为浅底对比设计），
+   作填充会形成深色板，墨字在其上不可读；
+   边框压深一档补轮廓（浅绿对白卡仅 1.9:1），悬停加深一档（浅底惯例） */
 #md-notification .md-notification-content .btn-default {
-  color: #1c2418 !important;
-  background: var(--ep-green) !important;
-  border: 1px solid var(--ep-green) !important;
-  box-shadow: 0 2px 8px rgb(119 145 79 / 15%);
+  color: #101a12 !important;
+  background: rgb(167 192 128) !important;
+  border: 1px solid rgb(119 145 79 / 45%) !important;
+  box-shadow: 0 2px 8px rgb(119 145 79 / 18%);
 }
 
 #md-notification .md-notification-content .btn-default:hover {
-  color: #161d14 !important;
-  background: var(--ep-green-bright) !important;
-  border-color: var(--ep-green-bright) !important;
-  box-shadow: 0 6px 16px rgb(119 145 79 / 21%);
-  transform: translateY(-1px);
+  color: #0b120c !important;
+  background: rgb(150 175 110) !important;
+  border-color: rgb(119 145 79 / 60%) !important;
+  box-shadow: 0 6px 16px rgb(119 145 79 / 24%);
 }
 
 #md-notification .md-notification-content .ok-btn {
@@ -4895,11 +4947,10 @@ body #spell-check-panel {
   color: var(--ep-text) !important;
   background: rgb(44 56 48 / 8%) !important;
   border-color: rgb(44 56 48 / 16%) !important;
-  transform: translateY(-1px);
 }
 
 #md-notification .md-notification-content .btn:active {
-  transform: translateY(0) scale(.97);
+  filter: brightness(.95);
   transition-duration: 80ms;
 }
 
@@ -6618,15 +6669,17 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   border-color: rgb(119 145 79 / 27%);
 }
 
+/* 主按钮与导出通知主按钮同一套配方：品牌浅绿实底配深墨字，悬停加深一档。
+   填充不用 var(--ep-green)（浅色主题里的文字级深绿，作填充成深色板） */
 .ty-preferences .btn-primary {
-  color: #1f281d;
-  background: var(--ep-green);
-  border: 1px solid rgb(119 145 79 / 42%);
+  color: #101a12;
+  background: rgb(167 192 128);
+  border: 1px solid rgb(119 145 79 / 45%);
 }
 
 .ty-preferences .btn-primary:hover {
-  color: #161d14;
-  background: var(--ep-green-bright);
+  color: #0b120c;
+  background: rgb(150 175 110);
 }
 
 .ty-preferences .btn:active {
@@ -7201,10 +7254,34 @@ body #plugin-window-tab .add-button:hover .add-icon {
   color: #fff !important;
 }
 
+/* 打印管线铺页面底色的方式：主进程读取 body 的屏幕态计算背景色，
+   用它创建打印窗口，PDF 页边距即透出该窗口底色（正文卡色由打印
+   媒体规则绘制，只覆盖内容区，盖不到页边距，页缘因此出现窗口灰
+   色带）。导出文档 body 带 typora-print 类，这里把它的背景固定为
+   正文卡底色，页边距与正文同底；屏幕 body 不带该类，不受影响 */
+body.typora-print {
+  background-color: var(--ep-bg-card);
+}
+
 @media print {
   * {
     box-shadow: none !important;
     text-shadow: none !important;
+  }
+
+  /* 官方接口变量同步对齐卡片色：导出模板与打印管线读取的页面底色
+     都取自它，防止任何路径再铺回窗口底色 */
+  :root {
+    --bg-color: var(--ep-bg-card);
+  }
+
+  /* PDF 页面底色 = 正文卡底色：导出走 printToPDF（printBackground:true），
+     画布底色会整页上色；上方已把 content 卡底置透明，这里把 html/body
+     画布色换成卡片色，导出 PDF 即与正文卡同底；规则只在打印媒体生效，
+     屏幕外观不受影响 */
+  html,
+  body {
+    background-color: var(--ep-bg-card);
   }
 
   content {

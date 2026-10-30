@@ -4722,6 +4722,22 @@ body #spell-check-panel {
   padding-top: 22px;
 }
 
+/* 通知出现期间把容器抬到顶栏（z 900）与页签栏（z 901）之上：
+   无框模式顶栏被加高成透明拖拽条、页签栏本身是全宽 40px 横条，
+   原生容器 z-index 40 使卡片中段的按钮悬停与点击命中这两层；
+   卡片之外容器仍是 pointer-events:none 的空区，两层自身交互不受影响。
+   搜索面板态与偏好设置态排除，维持原生层级关系 */
+body.ty-show-notification:not(.on-search-panel-open):not(.show-preference-panel) .md-notification-container {
+  z-index: 905;
+}
+
+/* 无框模式下加高的顶栏是系统拖拽区（裁决在渲染器之外，z-index 无效），
+   把卡片从拖拽区里抠出，按钮悬停与点击不被窗口拖动吞掉；
+   隐藏态元素不参与绘制、不产生区域，无需按显隐切换 */
+#md-notification {
+  -webkit-app-region: no-drag;
+}
+
 #md-notification {
   position: relative;
   display: block !important;
@@ -4827,7 +4843,10 @@ body #spell-check-panel {
   line-height: 1.5;
 }
 
-/* 资源管理器按钮：绿色主按钮；关闭：低调幽灵按钮 */
+/* 资源管理器按钮：绿色主按钮；关闭：低调幽灵按钮。
+   悬停与按下不位移不缩放：transform 会同步改变命中几何，
+   悬停上浮在按钮底缘留下约 1px 的悬停抖动带，按下缩小让
+   边缘按下落空；反馈全部交给变色与投影，热区恒等于视觉框 */
 #md-notification .md-notification-content .btn {
   display: inline-flex !important;
   flex: 0 0 auto;
@@ -4848,8 +4867,7 @@ body #spell-check-panel {
   transition: color 180ms var(--ep-ease),
     background-color 180ms var(--ep-ease),
     border-color 180ms var(--ep-ease),
-    box-shadow 180ms var(--ep-ease),
-    transform 160ms var(--ep-ease);
+    box-shadow 180ms var(--ep-ease);
 }
 
 #md-notification .md-notification-content .btn-default {
@@ -4864,7 +4882,6 @@ body #spell-check-panel {
   background: var(--ep-green-bright) !important;
   border-color: var(--ep-green-bright) !important;
   box-shadow: 0 6px 16px rgb(167 192 128 / 26%);
-  transform: translateY(-1px);
 }
 
 #md-notification .md-notification-content .ok-btn {
@@ -4878,11 +4895,10 @@ body #spell-check-panel {
   color: var(--ep-text) !important;
   background: rgb(255 255 255 / 6%) !important;
   border-color: rgb(255 255 255 / 18%) !important;
-  transform: translateY(-1px);
 }
 
 #md-notification .md-notification-content .btn:active {
-  transform: translateY(0) scale(.97);
+  filter: brightness(.95);
   transition-duration: 80ms;
 }
 
@@ -7173,10 +7189,34 @@ body #plugin-window-tab .add-button:hover .add-icon {
   color: #fff !important;
 }
 
+/* 打印管线铺页面底色的方式：主进程读取 body 的屏幕态计算背景色，
+   用它创建打印窗口，PDF 页边距即透出该窗口底色（正文卡色由打印
+   媒体规则绘制，只覆盖内容区，盖不到页边距，页缘因此出现窗口灰
+   色带）。导出文档 body 带 typora-print 类，这里把它的背景固定为
+   正文卡底色，页边距与正文同底；屏幕 body 不带该类，不受影响 */
+body.typora-print {
+  background-color: var(--ep-bg-card);
+}
+
 @media print {
   * {
     box-shadow: none !important;
     text-shadow: none !important;
+  }
+
+  /* 官方接口变量同步对齐卡片色：导出模板与打印管线读取的页面底色
+     都取自它，防止任何路径再铺回窗口底色 */
+  :root {
+    --bg-color: var(--ep-bg-card);
+  }
+
+  /* PDF 页面底色 = 正文卡底色：导出走 printToPDF（printBackground:true），
+     画布底色会整页上色；上方已把 content 卡底置透明，这里把 html/body
+     画布色换成卡片色，导出 PDF 即与正文卡同底；规则只在打印媒体生效，
+     屏幕外观不受影响 */
+  html,
+  body {
+    background-color: var(--ep-bg-card);
   }
 
   content {
