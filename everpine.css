@@ -18,12 +18,19 @@
    文件名与 font-family 名，再同步下方三类字体变量，全主题即生效
    -------------------------------------------------------------------------- */
 
+/* 字体：双路径 src——第一相对路径供编辑器（相对主题目录）命中，
+   第二为本机绝对路径，供 HTML 导出件命中：Typora 导出把主题 CSS
+   原样内嵌进单文件 HTML 且不改写 url()，相对路径在导出目录下
+   全部 404，三款自定义字体集体回退成系统字体；浏览器按序尝试
+   src 列表，相对路径失效后落到绝对路径，分发到其它机器时该路径
+   不存在、浏览器静默跳过进入系统字体回退，无副作用 */
 /* 思源黑体 */
 @font-face {
   font-family: 'SourceHanSansSC';
   font-style: normal;
   font-weight: normal;
-  src: url('./fonts/SourceHanSansSC-Regular.otf') format('opentype');
+  src: url('./fonts/SourceHanSansSC-Regular.otf') format('opentype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/SourceHanSansSC-Regular.otf') format('opentype');
 }
 
 /* 霞鹜文楷 */
@@ -31,7 +38,8 @@
   font-family: 'lxgwwenkai';
   font-style: normal;
   font-weight: normal;
-  src: url('./fonts/LXGWWenKai-Regular.ttf') format('truetype');
+  src: url('./fonts/LXGWWenKai-Regular.ttf') format('truetype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/LXGWWenKai-Regular.ttf') format('truetype');
 }
 
 /* Maple Mono NL NF CN */
@@ -39,7 +47,8 @@
   font-family: 'MapleMonoNL-NFMono-CN-Regular';
   font-style: normal;
   font-weight: normal;
-  src: url('./fonts/MapleMonoNL-NFMono-CN-Regular.ttf') format('truetype');
+  src: url('./fonts/MapleMonoNL-NFMono-CN-Regular.ttf') format('truetype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/MapleMonoNL-NFMono-CN-Regular.ttf') format('truetype');
 }
 
 /* --------------------------------------------------------------------------
@@ -6250,6 +6259,33 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   background-size: 12px 8px;
 }
 
+/* 页首/页尾字段的模式下拉覆盖层：导出设置把 select 绝对定位
+   叠在文本框上层，点击输入区实际命中的是它，用来切换
+   无/预设/自定义三种模式；通用下拉的居中文字、箭头与投影
+   会穿透到这层，当前值文字（如「自定义」）便叠加在输入内容
+   上，点击聚焦时还会带出选区高亮。这里恢复它的隐形覆盖形态：
+   文字与全部外观收掉，点击仍正常弹出模式下拉，当前值由下层
+   的文本框自身显示（无值时是占位「无」，有值时是模板内容） */
+.ty-preferences .export-config .text-input select {
+  min-width: 0;
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 0 0 8px;
+  color: transparent;
+  text-align: left;
+  text-align-last: auto;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.ty-preferences .export-config .text-input select::selection {
+  color: transparent;
+  background: transparent;
+}
+
 /* 数字输入框：纯手动输入，数字右对齐且在盒内垂直居中；
    前后各 6px 显式间距；无原生上下箭头 */
 .ty-preferences input[type='number'] {
@@ -6907,7 +6943,7 @@ body:has(#root.ty-preferences) .input-autocomplete-row.active {
   justify-items: center;
   align-items: center;
   /* 胶囊容器：深底 + 背景模糊 + 细白描边 + 分层投影 + 顶部内高光；
-     静止半透明融入编辑器，悬停全亮 */
+     幽灵档 0.35 与页脚工具行未悬停档同值，悬停胶囊整行全亮 */
   padding: 4px;
   gap: 2px !important;
   background: rgb(26 31 28 / 92%);
@@ -6919,7 +6955,7 @@ body:has(#root.ty-preferences) .input-autocomplete-row.active {
     0 2px 6px rgb(0 0 0 / 24%),
     inset 0 1px 0 rgb(255 255 255 / 5%);
   overflow: hidden;
-  opacity: 0.45 !important;
+  opacity: 0.35 !important;
   transition: opacity var(--ep-speed) var(--ep-ease);
 }
 
@@ -6930,6 +6966,9 @@ body:has(#root.ty-preferences) .input-autocomplete-row.active {
   display: none !important;
 }
 
+/* 全亮档：胶囊行悬停（未碰触按钮）时图标档位对齐页脚工具行的
+   行悬停态（常规字色全亮），三态与页脚一致：
+   未悬停 0.35 幽灵 / 行悬停全亮常规字色 / 碰触按钮绿字强绿底 */
 #plugin-action-buttons:hover {
   opacity: 1 !important;
 }
@@ -7010,9 +7049,9 @@ body #plugin-action-buttons .action-item {
 
 body #plugin-action-buttons .action-item:hover {
   color: var(--ep-green-bright) !important;
-  /* 悬停不放绿片：变绿与方向动画已是命中反馈，静止底色会框住运动图标；
-     插件自带的悬停上移与外扩阴影在胶囊内形成底色晕，一并去掉 */
-  background-color: transparent !important;
+  /* 触碰态对齐正文页脚工具行：强绿底铺满按钮盒（同页脚按钮触碰档），
+     图标变绿并播放方向动画；插件自带的悬停上移与外扩阴影一并去掉 */
+  background-color: var(--ep-hover-green-strong) !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -7198,6 +7237,188 @@ body.typora-print {
   background-color: var(--ep-bg-card);
 }
 
+/* HTML 导出页观感：导出文档没有编辑器的 content 卡片元素，
+   页面底色会露出工作区灰、正文按屏幕 max-width 1500px 拉满通栏；
+   导出 HTML 的 body 带 typora-export 类（编辑器 body 无该类），
+   这里把页面底对齐正文卡色，双类作用域不触碰编辑器排版 */
+body.typora-export {
+  background-color: var(--ep-bg-card);
+  /* 清掉导出模板给 body 的 30px 水平内边距：大纲侧栏因此离左缘
+     30px，正文列两侧也被挤窄；清零后大纲贴边、正文列吃满 */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* 正文列密度：导出模板同样给 html 写死根字号 22px（内联样式，
+   样式表无法覆盖），rem 字号与间距整体放大 1.375 倍；对正文区
+   整体 zoom 17/22 ≈ 0.7727，把正文还原到 17px 屏显标称，列宽与
+   内边距按 1/0.7727 预放大声明 */
+body.typora-export #write {
+  zoom: 0.7727;
+  max-width: 1548px;
+  margin: 0 auto;
+  padding: 48px 66px 77px;
+}
+
+/* 带大纲导出时的版心解锁：导出模板把侧栏与正文装进 max-width
+   1440px 的居中弹性盒，宽屏下两侧各留大片空白、正文列被压窄；
+   解除该上限并清掉自动边距，正文列吃满侧栏右侧宽度后再由上面
+   的 max-width 居中收口；侧栏保留 24px 右边距，正文与大纲之间
+   留出与编辑器一致的间隔 */
+body.typora-export-show-outline .typora-export-content {
+  max-width: none;
+  margin: 0;
+}
+
+body.typora-export .typora-export-sidebar {
+  margin-right: 24px;
+}
+
+/* 导出大纲主题化：导出文档的大纲容器是 .typora-export-sidebar
+   .outline-content（编辑器是 #outline-content 且 body 带 pin-outline），
+   主题大纲样式大多挂 pin-outline 前缀，导出页全部落空，呈现原生
+   灰底折叠树；导出 DOM 与编辑器同类名（outline-item-wrapper /
+   outline-item / outline-label / outline-h2~h6），这里按导出作用域
+   复刻编辑器大纲外观；折叠箭头隐藏、子级强制展开，层级缩进与
+   参考线由下方 ul.outline-children 规则补出，呈现与编辑器展开
+   状态一致的树 */
+body.typora-export .typora-export-sidebar .outline-content {
+  /* 满视口高：原生容器高度随内容收缩，标题少时面板不满高、
+     下缘露出页面底色；fixed 定位配 height 100% 铺满整侧 */
+  height: 100%;
+  padding: 20px 14px 32px 8px;
+  background: var(--ep-bg-window);
+  border-right: 1px solid var(--ep-line-1);
+  counter-reset: ep-ol2;
+  /* 字号基准为编辑器侧栏固定 14px（#typora-sidebar 的 font-size），
+     导出侧栏按需求减 2px */
+  font-size: 12px;
+}
+
+/* 大纲滚动条归零：编辑器把大纲滚动条宽高归零（#typora-sidebar
+   前缀规则，导出页落空，导出模板的 overflow 滚动条粗且突兀），
+   导出作用域同样归零；滚轮与触控板滚动不受影响 */
+body.typora-export .typora-export-sidebar .outline-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+body.typora-export .typora-export-sidebar .outline-content ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.typora-export .typora-export-sidebar .outline-content .outline-item {
+  display: block;
+  margin: 1px 2px;
+  padding: 5px 10px 5px 18px;
+  border-radius: var(--ep-radius-chip);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  transition: background-color var(--ep-speed) var(--ep-ease);
+}
+
+body.typora-export .typora-export-sidebar .outline-content .outline-item:hover {
+  background-color: rgb(255 255 255 / 8%);
+}
+
+body.typora-export .typora-export-sidebar .outline-content .outline-expander {
+  display: none;
+}
+
+body.typora-export .typora-export-sidebar .outline-content .outline-children {
+  display: block !important;
+}
+
+/* 层级缩进与参考线：编辑器把每级 14px 缩进挂在子级 ul 上并画 1px
+   极淡参考线（body:not(.no-collapse-outline) 前缀规则，导出页
+   落空），这里在导出作用域补出同几何，树形与编辑器一致 */
+body.typora-export .typora-export-sidebar .outline-content ul.outline-children {
+  margin: 0 0 0 14px;
+  padding-left: 8px;
+  border-left: 1px solid var(--ep-line-1);
+}
+
+/* label 颜色不在导出作用域覆写：编辑器的逐级章节色规则
+   （li.outline-item-wrapper.outline-hN ...）无 body 前缀，导出页
+   直接命中，这里只关掉原生悬停下划线，颜色交给逐级规则 */
+body.typora-export .typora-export-sidebar .outline-content a.outline-label {
+  text-decoration: none;
+}
+
+/* 导出激活与悬停标记：导出脚本把当前章节写成宿主 li 的
+   outline-item-active 类（编辑器是 label 上的 outline-active，规则挂
+   pin-outline 前缀，导出页落空，激活项只剩原生加粗），这里复刻
+   编辑器配色：激活 = 主题白字 + 淡白 2px 底线，悬停 = 亮白字 +
+   主题绿底线；导出 label 是 table-cell，用 text-decoration 画线，
+   多行条目每行都有线（渐变背景线在 table-cell 上只画在盒底）；
+   激活在前、悬停在后，悬停激活项呈现悬停配色 */
+body.typora-export .typora-export-sidebar .outline-content .outline-item-active > .outline-item .outline-label {
+  color: var(--ep-text) !important;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-color: rgb(201 211 204 / 55%);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+body.typora-export .typora-export-sidebar .outline-content .outline-item:hover .outline-label {
+  color: #d8e0db !important;
+  text-decoration: underline;
+  text-decoration-color: var(--ep-green);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* 章节编号（一、 / 1.1 / 1.1.1 …）：编辑器大纲的编号来自插件渲染，
+   不在 md 文本里，导出静态页拿不到；用 CSS counter 链补出同格式
+   编号，章级中文序号、子级阿拉伯点分，counter 在每个上级条目重置 */
+body.typora-export .outline-content .outline-h2 > .outline-item {
+  counter-increment: ep-ol2;
+  counter-reset: ep-ol3 ep-ol4 ep-ol5 ep-ol6;
+}
+
+body.typora-export .outline-content .outline-h2 > .outline-item .outline-label::before {
+  content: counter(ep-ol2, cjk-ideographic) "、 ";
+}
+
+body.typora-export .outline-content .outline-h3 > .outline-item {
+  counter-increment: ep-ol3;
+  counter-reset: ep-ol4 ep-ol5 ep-ol6;
+}
+
+body.typora-export .outline-content .outline-h3 > .outline-item .outline-label::before {
+  content: counter(ep-ol2) "." counter(ep-ol3) " ";
+}
+
+body.typora-export .outline-content .outline-h4 > .outline-item {
+  counter-increment: ep-ol4;
+  counter-reset: ep-ol5 ep-ol6;
+}
+
+body.typora-export .outline-content .outline-h4 > .outline-item .outline-label::before {
+  content: counter(ep-ol2) "." counter(ep-ol3) "." counter(ep-ol4) " ";
+}
+
+body.typora-export .outline-content .outline-h5 > .outline-item {
+  counter-increment: ep-ol5;
+  counter-reset: ep-ol6;
+}
+
+body.typora-export .outline-content .outline-h5 > .outline-item .outline-label::before {
+  content: counter(ep-ol2) "." counter(ep-ol3) "." counter(ep-ol4) "." counter(ep-ol5) " ";
+}
+
+body.typora-export .outline-content .outline-h6 > .outline-item {
+  counter-increment: ep-ol6;
+}
+
+body.typora-export .outline-content .outline-h6 > .outline-item .outline-label::before {
+  content: counter(ep-ol2) "." counter(ep-ol3) "." counter(ep-ol4) "." counter(ep-ol5) "." counter(ep-ol6) " ";
+}
+
 @media print {
   * {
     box-shadow: none !important;
@@ -7228,6 +7449,58 @@ body.typora-print {
     border: none;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  /* 打印容量：正文卡自带 40px/56px/64px 内边距与 16px 顶外边距，
+     与打印边距（默认上下各 16mm、左右由 body 的 16mm padding
+     承担）叠加成双层留白，一页只剩约七成高度七成宽度；打印时
+     清零这层重复留白，正文区每边加宽 56px、加高约 90px，
+     留白单独由打印边距决定，观感与纸面一致；
+     只在打印媒体生效，屏幕排版不变 */
+  #write,
+  body.typora-export #write {
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* 导出密度对齐编辑器：Typora 导出模板给 html 写死根字号
+     22px（内联样式，样式表无法覆盖），而屏幕编辑约 16px，
+     全主题的 rem 字号与间距（h1 3rem、h2 1.6rem、段前
+     2rem……）在导出里整体放大 1.375 倍，单页内容量同比缩水；
+     print 媒体对正文区整体 zoom 16/22 ≈ 0.7273，把 rem 体系
+     还原回屏幕标称尺寸，密度与编辑器一致，且 zoom 参与布局
+     与分页计算，跨页、锚点、目录均正常；纸面比窗口宽，每行
+     容纳字数更多 */
+  #write {
+    zoom: 0.7273;
+  }
+
+  /* 图片限制最宽 70%：按内容宽等比缩放的截图高度随之收一档，
+     两张 4:3 截图可同页，已缩放过的小图不受影响 */
+  #write img {
+    max-width: 70%;
+  }
+
+  /* 分页质量：标题不落单在页尾（后随至少两行正文）、代码块与
+     表格整体不跨页断开、段落孤行控制在每页至少两行；
+     Chromium 打印管线支持 break-* 属性 */
+  #write h1,
+  #write h2,
+  #write h3,
+  #write h4,
+  #write h5,
+  #write h6 {
+    break-after: avoid;
+  }
+
+  #write p {
+    orphans: 2;
+    widows: 2;
+  }
+
+  #write pre,
+  #write table {
+    break-inside: avoid;
   }
 
   /* 打印不输出目录块的常显标签与点击态 */

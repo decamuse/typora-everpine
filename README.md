@@ -16,6 +16,8 @@ Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与�
 
 主题对 Typora 的界面做了完整重绘：菜单页、偏好设置、查找替换、弹窗、文件树与滚动条均已适配。
 
+导出链路同样做了适配：PDF 提供浅色导出主题与打印排印样式，HTML 保留侧栏大纲与完整配色，Word 通过样式参考文档与过滤器对齐论文格式，标题编号、注释块、表格与告警框各有对应样式。
+
 建议搭配 [typora_plugin](https://github.com/obgnail/typora_plugin) 插件使用。
 
 ## 字体
@@ -30,6 +32,8 @@ Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与�
 
 ## 安装方法
 
+### 样式安装
+
 > - 建议 Typora 1.8 及以上版本，告警框（GitHub Style Alert）语法自 1.8 起支持，低版本中告警框按普通引用块渲染；
 > - 主题在 Windows 下开发调试，macOS 与 Linux 未做完整测试。
 
@@ -42,6 +46,37 @@ Typora 主题文件夹的默认路径：
 - Windows：`C:\Users\<用户名>\AppData\Roaming\Typora\themes`
 - macOS：`~/Library/Application Support/abnerworks.Typora/themes`
 - Linux：`~/.config/Typora/themes`
+
+### 导出配置
+
+Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导出。仓库 `reference` 目录附带论文风格的样式参考文档与告警框过滤器，配置前先把这两个文件下载到本地：
+
+| 文件 | 用途 |
+|:---|:---|
+| `reference/everpine-thesis-reference.docx` | Word 样式参考：黑体标题、1.1 式编号、楷体注释块与表格样式 |
+| `reference/everpine-alert.lua` | 告警框样式过滤器：把五类告警框映射到 Word 中带色条的样式 |
+
+**PDF**：
+
+1. 「文件」 → 「偏好设置」 → 「导出」 → 「PDF」
+2. 页面大小选 A4，页边距选自定义，上方 12 mm、下方 14 mm、左右各 14 mm
+3. 主题建议选 Everpine Light
+
+![PDF 导出配置：页面大小与自定义页边距](笔记图片/偏好设置-导出PDF.png)
+
+**Word**：
+
+1. 「导出」 → 「Word (.docx)」
+
+2. 「样式文件」选择 `everpine-thesis-reference.docx`
+
+3. 「自定义参数」填入过滤器参数，路径按实际存放位置修改：
+
+   ```shell
+   --lua-filter <过滤器存放路径>\everpine-alert.lua
+   ```
+
+![Word 导出配置：样式文件与自定义参数](笔记图片/偏好设置-导出Word.png)
 
 ## 自定义
 
@@ -111,6 +146,20 @@ Typora 主题文件夹的默认路径：
 #### 偏好设置
 
 ![浅色主题：偏好设置窗口](笔记图片/浅色-偏好设置.png)
+
+### 导出效果
+
+#### PDF
+
+![PDF 导出：大纲面板与告警框](笔记图片/导出-PDF.png)
+
+#### HTML
+
+![HTML 导出：侧栏大纲与暗色告警框](笔记图片/导出-HTML.png)
+
+#### Word
+
+![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word.png)
 
 ## 许可
 
