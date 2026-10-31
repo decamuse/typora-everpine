@@ -6,7 +6,7 @@
   [![Style](https://img.shields.io/badge/Style-Dark%20%26%20Light%20Multicolor-83c092?style=flat-square)](#)
   [![License](https://img.shields.io/badge/License-MIT-7fbbb3?style=flat-square)](LICENSE)
 
-## 简介
+## 一、简介
 
 Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与浅色 Everpine Light 两套外观。两套主题共用同一套设计语言与色相体系，浅色版按同一规则逐色重新校准了对比度，不是简单的反色处理。
 
@@ -20,7 +20,7 @@ Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与�
 
 建议搭配 [typora_plugin](https://github.com/obgnail/typora_plugin) 插件使用。
 
-## 字体
+## 二、字体
 
 主题内置三款字体，按用途分三类，全部随仓库附带，无需手动安装：
 
@@ -30,9 +30,9 @@ Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与�
 | 代码 | [Maple Mono NL NF Mono CN](https://github.com/subframe7536/maple-font) | 代码块、行内代码、键帽 |
 | 界面 | [LXGW WenKai（霞鹜文楷）](https://github.com/lxgw/LxgwWenKai) | 菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 |
 
-## 安装方法
+## 三、安装方法
 
-### 样式安装
+### 3.1 样式安装
 
 > - 建议 Typora 1.8 及以上版本，告警框（GitHub Style Alert）语法自 1.8 起支持，低版本中告警框按普通引用块渲染；
 > - 主题在 Windows 下开发调试，macOS 与 Linux 未做完整测试。
@@ -47,7 +47,7 @@ Typora 主题文件夹的默认路径：
 - macOS：`~/Library/Application Support/abnerworks.Typora/themes`
 - Linux：`~/.config/Typora/themes`
 
-### 导出配置
+### 3.2 导出配置
 
 Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导出。仓库 `reference` 目录附带论文风格的样式参考文档与告警框过滤器，配置前先把这两个文件下载到本地：
 
@@ -78,7 +78,7 @@ Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导�
 
 ![Word 导出配置：样式文件与自定义参数](笔记图片/偏好设置-导出Word.png)
 
-## 自定义
+## 四、自定义
 
 主题的可调参数集中在 `everpine.css` 与 `everpine-light.css` 开头的 `:root` 区块，两个文件结构相同，可分别调整；修改变量并保存后重新打开文档即可生效：
 
@@ -93,9 +93,9 @@ Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导�
 | `--ep-shadow-*` | 卡片、块级、浮层、图片四组阴影 |
 | `--ep-speed`、`--ep-ease` | 全局动效时长与缓动曲线 |
 
-## 成品截图
+## 五、成品截图
 
-### 深色 Everpine
+### 5.1 深色 Everpine
 
 #### 目录与正文
 
@@ -127,7 +127,7 @@ Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导�
 
 ![深色主题：菜单页](笔记图片/菜单页.png)
 
-### 浅色 Everpine Light
+### 5.2 浅色 Everpine Light
 
 #### 文件树与正文
 
@@ -147,7 +147,7 @@ Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导�
 
 ![浅色主题：偏好设置窗口](笔记图片/浅色-偏好设置.png)
 
-### 导出效果
+### 5.3 导出效果
 
 #### PDF
 
@@ -161,7 +161,7 @@ Word 导出依赖 [Pandoc](https://pandoc.org)，先安装 Pandoc 再配置导�
 
 ![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word.png)
 
-## 许可
+## 六、许可
 
 本主题以 [MIT](LICENSE) 许可证发布。
 
