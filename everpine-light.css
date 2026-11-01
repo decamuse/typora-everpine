@@ -21,7 +21,7 @@
 /* 字体：双路径 src——第一相对路径供编辑器（相对主题目录）命中，
    第二为本机绝对路径，供 HTML 导出件命中：Typora 导出把主题 CSS
    原样内嵌进单文件 HTML 且不改写 url()，相对路径在导出目录下
-   全部 404，三款自定义字体集体回退成系统字体；浏览器按序尝试
+   全部 404，五款自定义字体集体回退成系统字体；浏览器按序尝试
    src 列表，相对路径失效后落到绝对路径，分发到其它机器时该路径
    不存在、浏览器静默跳过进入系统字体回退，无副作用 */
 /* 思源黑体 */
@@ -49,6 +49,24 @@
   font-weight: normal;
   src: url('./fonts/MapleMonoNL-NFMono-CN-Regular.ttf') format('truetype'),
     url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/MapleMonoNL-NFMono-CN-Regular.ttf') format('truetype');
+}
+
+/* 思源宋体 */
+@font-face {
+  font-family: 'Source Han Serif SC';
+  font-style: normal;
+  font-weight: normal;
+  src: url('./fonts/SourceHanSerifSC-Regular.otf') format('opentype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/SourceHanSerifSC-Regular.otf') format('opentype');
+}
+
+/* Cascadia Mono */
+@font-face {
+  font-family: 'Cascadia Mono';
+  font-style: normal;
+  font-weight: normal;
+  src: url('./fonts/CascadiaMono-Regular.ttf') format('truetype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/CascadiaMono-Regular.ttf') format('truetype');
 }
 
 /* --------------------------------------------------------------------------
