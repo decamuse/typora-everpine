@@ -69,6 +69,14 @@
     url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/CascadiaMono-Regular.ttf') format('truetype');
 }
 
+/* 数字等高：Georgia 默认用老式数字，0、1、2 与小写 x 高齐平，
+   3、4、5、7、9 下探基线，6、8 上伸，界面混排时数字上下跳动；
+   lining 声明启用 Georgia 自带的 lnum 特性统一取等高档，
+   其余字体无该特性差异，正文与代码数字不受影响 */
+body {
+  font-variant-numeric: lining-nums;
+}
+
 /* --------------------------------------------------------------------------
    变量
    -------------------------------------------------------------------------- */
@@ -78,11 +86,11 @@
   /* 正文：标题、段落、列表、表格、引用与左侧大纲 */
   --ep-font-body: 'SourceHanSansSC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   /* 代码：代码块、行内代码、键帽 */
-  --ep-font-code: 'MapleMonoNL-NFMono-CN-Regular', 'Cascadia Mono', 'Consolas',
+  --ep-font-code: 'Cascadia Mono', 'MapleMonoNL-NFMono-CN-Regular', 'Consolas',
     monospace;
   /* 界面：菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 */
-  --ep-font-ui: 'lxgwwenkai', 'Georgia', 'Source Han Serif SC',
-    'SourceHanSansSC', sans-serif;
+  --ep-font-ui: 'Georgia', 'Source Han Serif SC',
+    'lxgwwenkai', 'SourceHanSansSC', sans-serif;
 
   /* Typora 官方接口变量 */
 
