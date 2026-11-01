@@ -30,6 +30,17 @@ Everpine 是一套低饱和多彩的 Typora 主题，包含深色 Everpine 与�
 | 代码 | [Maple Mono NL NF Mono CN](https://github.com/subframe7536/maple-font) | 代码块、行内代码、键帽 |
 | 界面 | [LXGW WenKai（霞鹜文楷）](https://github.com/lxgw/LxgwWenKai) | 菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 |
 
+### 2.1 其它推荐字体
+
+主题字体栈为四款推荐字体预留了位置，安装后重启 Typora 自动生效，无需修改主题：
+
+| 位置 | 字体 | 来源 | 获取方式 |
+|:---|:---|:---|:---|
+| 正文 | [思源黑体（Source Han Sans SC）](https://github.com/adobe-fonts/source-han-sans) | 主题自带 | 已随主题附带，无需操作 |
+| 菜单 | Georgia | Windows 系统自带 | 无需下载 |
+| 菜单 | [思源宋体（Source Han Serif SC）](https://github.com/adobe-fonts/source-han-serif) | 需下载 | [Releases 页面](https://github.com/adobe-fonts/source-han-serif/releases) 下载 SC 版压缩包，安装其中的字体文件 |
+| 代码 | [Cascadia Mono](https://github.com/microsoft/cascadia-code) | Windows 11 自带，Windows 10 需下载 | [Releases 页面](https://github.com/microsoft/cascadia-code/releases) 下载压缩包，安装其中的 CascadiaMono 字体 |
+
 ## 三、安装方法
 
 ### 3.1 样式安装

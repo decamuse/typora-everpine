@@ -63,7 +63,8 @@
   --ep-font-code: 'MapleMonoNL-NFMono-CN-Regular', 'Cascadia Mono', 'Consolas',
     monospace;
   /* 界面：菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 */
-  --ep-font-ui: 'lxgwwenkai', 'SourceHanSansSC', sans-serif;
+  --ep-font-ui: 'lxgwwenkai', 'Georgia', 'Source Han Serif SC',
+    'SourceHanSansSC', sans-serif;
 
   /* Typora 官方接口变量 */
 
@@ -7582,3 +7583,11 @@ body.typora-export .outline-content .outline-h6 > .outline-item .outline-label::
   }
 }
 
+
+/* 编辑器把 $$ 块级公式渲染成普通段落里的行内公式 span
+   （p > span.md-inline-math，无 math-block 容器），段落左对齐
+   导致公式贴左；此处让只含一枚行内公式 span 的段落居中，
+   行内公式与文字混排的段落不命中，公式源码编辑态不受影响 */
+#write p:has(> span.md-inline-math:only-child) {
+  text-align: center;
+}
