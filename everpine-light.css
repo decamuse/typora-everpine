@@ -21,7 +21,7 @@
 /* 字体：双路径 src——第一相对路径供编辑器（相对主题目录）命中，
    第二为本机绝对路径，供 HTML 导出件命中：Typora 导出把主题 CSS
    原样内嵌进单文件 HTML 且不改写 url()，相对路径在导出目录下
-   全部 404，五款自定义字体集体回退成系统字体；浏览器按序尝试
+   全部 404，六款自定义字体集体回退成系统字体；浏览器按序尝试
    src 列表，相对路径失效后落到绝对路径，分发到其它机器时该路径
    不存在、浏览器静默跳过进入系统字体回退，无副作用 */
 /* 思源黑体 */
@@ -69,6 +69,15 @@
     url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/CascadiaMono-Regular.ttf') format('truetype');
 }
 
+/* 朱雀仿宋 */
+@font-face {
+  font-family: 'Zhuque Fangsong (technical preview)';
+  font-style: normal;
+  font-weight: normal;
+  src: url('./fonts/ZhuqueFangsong-Regular.ttf') format('truetype'),
+    url('file:///C:/Users/HappigMuse/AppData/Roaming/Typora/themes/fonts/ZhuqueFangsong-Regular.ttf') format('truetype');
+}
+
 /* 数字等高：Georgia 默认用老式数字，0、1、2 与小写 x 高齐平，
    3、4、5、7、9 下探基线，6、8 上伸，界面混排时数字上下跳动；
    lining 声明启用 Georgia 自带的 lnum 特性统一取等高档，
@@ -84,12 +93,13 @@ body {
 :root {
   /* 字体：按文档结构分三类，改一处即全主题生效 */
   /* 正文：标题、段落、列表、表格、引用与左侧大纲 */
-  --ep-font-body: 'SourceHanSansSC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ep-font-body: 'SourceHanSansSC', 'Source Han Serif SC', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
   /* 代码：代码块、行内代码、键帽 */
   --ep-font-code: 'MapleMonoNL-NFMono-CN-Regular', 'Cascadia Mono', 'Consolas',
     monospace;
   /* 界面：菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 */
-  --ep-font-ui: 'lxgwwenkai', 'Georgia', 'Source Han Serif SC',
+  --ep-font-ui: 'lxgwwenkai', 'Zhuque Fangsong (technical preview)', 
     'SourceHanSansSC', sans-serif;
 
   /* Typora 官方接口变量 */
@@ -169,9 +179,11 @@ body {
 
   /* Everpine 强调色：低饱和绿系为主，浅底上整体加深保对比；
      绿系六级对侧栏底 #e7ece5 ≥5.2:1（大纲未激活加深档），
-     foam、blue、red、yellow 对代码面板底 #e9eee6 ≥4.5:1 */
+     foam、blue、red、yellow 对代码面板底 #e9eee6 ≥4.5:1；
+     链接色取交互绿同色相高彩档，正文卡底 4.57:1 */
   --ep-green: #546638;
   --ep-green-bright: #4b602e;
+  --ep-link: #5d7c25;
   --ep-teal: #3b6858;
   --ep-purple: #85506c;
   --ep-orange: #87543a;
@@ -441,50 +453,124 @@ content::-webkit-scrollbar-track {
    滚动条
    -------------------------------------------------------------------------- */
 
+/* 容器与轨道、上下分段、转角静止态显式透明；容器另须覆盖 :hover 态：
+   基础样式表给容器声明了悬停涂 5% 黑底，特异性高于静止态声明，
+   不写悬停态透明时悬停滚动条整列会显出一条通栏灰竖条 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-}
-
-::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* 滚动条整体下移内缩，滑块顶部不超出卡片圆角 */
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar:hover,
+::-webkit-scrollbar-track:hover,
+::-webkit-scrollbar-track-piece:hover,
+::-webkit-scrollbar-corner:hover {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* 滑块为居中胶囊：透明内缩左右对称，可见条带两端都落在滑块圆角的
+   内缘曲线上，两端呈圆角（单侧内缩时另一端是内缩直边，永远方角）。
+   每条规则自带 background-clip：按住或拖动滑块时跨规则的 clip
+   失效，绿色回填透明内缩区，视觉上展开成满宽（!important 也救不
+   回）；浅色底用主绿 #5c703d 低透明档。常态左右各内缩 2px 成 4px，
+   悬停与按下各收 1px 成 6px，几何瞬时切换不做动画（transition 只
+   声明背景色），按下沿用主题绿 */
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(119 145 79 / 32%);
+  background-color: rgb(92 112 61 / 30%);
   border-radius: 8px;
+  background-clip: padding-box;
   transition: background-color 0.15s var(--ep-ease);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(119 145 79 / 42%);
+  background-color: rgb(92 112 61 / 40%);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: rgb(92 112 61 / 40%);
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:vertical:hover,
+::-webkit-scrollbar-thumb:vertical:active {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+/* 正文滑块自持全部状态，机制与侧栏一致：不依赖基础样式表的任何
+   声明，常态 4px 居中胶囊，悬停、按住、拖动一律 6px 居中胶囊；按住
+   态由悬停收边规则持续生效保证（按住期间 ：hover 仍匹配），全部
+   宽度收边自带 clip */
+content::-webkit-scrollbar-thumb {
+  background-color: rgb(92 112 61 / 30%);
+  border-radius: 8px;
+  background-clip: padding-box;
+  transition: background-color 0.15s var(--ep-ease);
+}
+
+content::-webkit-scrollbar-thumb:vertical {
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+content::-webkit-scrollbar-thumb:hover,
+content::-webkit-scrollbar-thumb:active {
+  background-color: rgb(92 112 61 / 40%);
+}
+
+content::-webkit-scrollbar-thumb:vertical:hover,
+content::-webkit-scrollbar-thumb:vertical:active {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 /* 侧边栏滚动条与正文分档，两个标签页各滚各的容器（均已用滑块涂色取证）：
    文件树页的滚动条长在 #file-library 上（树以它为滚动祖先，纵向出条），
    .sidebar-content 只在横向溢出时出条；两者一并三态隐现：平时透明，
-   鼠标进入侧栏内容区显现 45%（与正文常显档同色），悬停滑块加深到 60%；
+   鼠标进入侧栏内容区显现 30%（与正文常显档同色），悬停滑块加深到 40%；
    目录页滚在 #outline-content 自己身上（.outline-content 类自带
    overflow-y:auto），宽高归零彻底隐藏（内容少，长滑块不承载位置信息，
    归零后条目宽出 8px，也不再在溢出临界点跳动） */
 #typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb,
 #typora-sidebar #file-library::-webkit-scrollbar-thumb {
   background-color: transparent;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 #typora-sidebar.active-tab-files .sidebar-content:hover::-webkit-scrollbar-thumb,
 #typora-sidebar #file-library:hover::-webkit-scrollbar-thumb {
-  background-color: rgb(119 145 79 / 32%);
+  background-color: rgb(92 112 61 / 30%);
 }
 
 #typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb:hover,
 #typora-sidebar #file-library::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(119 145 79 / 42%);
+  background-color: rgb(92 112 61 / 40%);
 }
 
-/* 悬停滑块视觉收细到 5px：左右各 1px 透明边框加背景裁剪内缩，
-   槽位与滑块几何不动，颜色只画进 5px 内区（仅纵向滑块收细） */
+/* 滑块两端圆角由左右对称内缩保证：常态左右各内缩 2px 成 3px 居中
+   胶囊，悬停视觉放宽到 5px（左右各收 1px），槽位与滑块几何不动，
+   颜色只画进内区（仅纵向滑块） */
 #typora-sidebar.active-tab-files .sidebar-content::-webkit-scrollbar-thumb:hover,
 #typora-sidebar #file-library::-webkit-scrollbar-thumb:hover {
   border-left: 1px solid transparent;
@@ -884,7 +970,7 @@ blockquote > ol + p,
   display: inline;
   padding-bottom: 3px;
   font-weight: 700;
-  color: var(--ep-green);
+  color: var(--ep-link);
   text-decoration: none;
   background-image: linear-gradient(to right, rgb(119 145 79 / 90%) 100%, rgb(119 145 79 / 90%) 100%);
   background-repeat: no-repeat;
@@ -894,7 +980,7 @@ blockquote > ol + p,
 }
 
 #write a:hover {
-  color: var(--ep-green);
+  color: var(--ep-link);
   background-position: left bottom;
   background-size: 100% 2px;
 }
@@ -947,7 +1033,7 @@ blockquote > ol + p,
 
 /* 角标脚注：身份绿系 */
 sup.md-footnote {
-  color: var(--ep-green);
+  color: var(--ep-link);
   background: transparent;
 }
 
@@ -960,7 +1046,7 @@ sup.md-footnote {
 }
 
 .footnotes a {
-  color: var(--ep-green);
+  color: var(--ep-link);
 }
 
 /* --------------------------------------------------------------------------
@@ -1961,6 +2047,16 @@ input {
   appearance: none;
 }
 
+/* 单选与复选输入盒显式取 20px，与自绘外圈同尺寸；内边距与边框归零，
+   内容原点与盒原点重合，实心点锚点恒落在外圈中心 */
+input[type='radio'],
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+}
+
 input::before {
   box-sizing: content-box;
   display: block;
@@ -1981,10 +2077,12 @@ input:disabled::before {
   border-color: var(--ep-text-faint);
 }
 
+/* 实心点与勾画的锚点固定在外圈中心 10px,10px：定位不经过输入框盒，
+   任何内核的固有盒尺寸下都与外圈同心 */
 input::after {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 10px;
+  left: 10px;
   box-sizing: content-box;
   display: block;
   width: 16px;
@@ -5511,31 +5609,46 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   font-family: var(--ep-font-body);
 }
 
-/* 整窗卡片：沿用主窗口的 8px 边距、16px 圆角、描边环与分层投影 */
+/* 偏好设置内容量少，滚动条整体隐藏：滚轮与触控板滚动不受影响。
+   曾有的两处竞争规则已清理：本节后段旧档的 6px 胶囊滑块样式
+   （同特异性且位置靠后，曾把此处的 0 宽反超）已删除；
+   electron.css 注入的 8px 方角黑滑块仍在主题之后注入，故保留
+   .ty-preferences 前缀抬高特异性稳赢。.pane 的 scrollbar-gutter:
+   stable 在 0 宽槽下不再保留空隙，版面不变 */
+.ty-preferences ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 整窗卡片：沿用主窗口的 8px 边距、16px 圆角、描边环与分层投影。
+   窗底与菜单卡、内容卡同用 --ep-bg-card：窗内融为一张整面，双卡
+   仅以描边环与投影勾出轮廓；窗体仍以描边与投影浮于页面地面
+   （--ep-bg-window）之上 */
 .ty-preferences .window {
   top: 8px;
   right: 8px;
   bottom: 8px;
   left: 8px;
-  background-color: var(--ep-bg-sidebar);
+  background-color: var(--ep-bg-card);
   border: 1px solid rgb(44 56 48 / 9%);
   border-radius: var(--ep-radius-card);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%),
     0 0 0 1px rgb(44 56 48 / 5%),
-    0 18px 44px rgb(40 50 44 / 16%),
-    0 3px 10px rgb(40 50 44 / 16%),
+    0 18px 44px rgb(40 50 44 / 14%),
+    0 4px 12px rgb(40 50 44 / 10%),
     0 10px 30px rgb(119 145 79 / 4%);
   overflow: hidden;
 }
 
-/* 顶栏：纵向 flex 居中，让关闭键与标题文字保持同一中线 */
+/* 顶栏：纵向 flex 居中，让关闭键与标题文字保持同一中线；底色透
+   明随窗底融入地面，不单独立一层色 */
 .ty-preferences .window-header {
   display: flex;
   align-items: center;
   flex: 0 0 56px;
   height: 56px;
   padding: 0 12px 0 0;
-  background: var(--ep-bg-sidebar);
+  background: transparent;
   border-bottom: 0;
   box-shadow: none;
 }
@@ -5778,6 +5891,9 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   overflow: hidden;
 }
 
+/* 左栏：与右栏同构的浮卡，但叠 4% 墨绿染面作导航面，导航与内容
+   左右分区各一色（色相仍在卡面同族内）；描边环收到 8%，投影减档，
+   分区语义交给色差，不再靠阴影分出主次 */
 .ty-preferences .pane-sm.sidebar {
   flex: 0 0 240px;
   width: 240px;
@@ -5785,13 +5901,13 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   min-width: 0;
   margin: 10px 0 10px 10px;
   padding: 12px 0 16px;
-  background: var(--ep-bg-card);
+  background: rgb(44 56 48 / 4%);
   border: 0;
   border-radius: 14px;
-  box-shadow: 0 0 0 1px rgb(44 56 48 / 9%),
+  box-shadow: 0 0 0 1px rgb(44 56 48 / 8%),
     inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 10px 24px rgb(40 50 44 / 12%),
-    0 8px 20px rgb(119 145 79 / 5%);
+    0 8px 20px rgb(40 50 44 / 10%),
+    0 10px 24px rgb(119 145 79 / 4%);
   overflow-y: auto;
 }
 
@@ -5826,7 +5942,7 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   font-family: var(--ep-font-ui);
   font-size: 14px;
   line-height: 34px;
-  background: rgb(44 56 48 / 5%);
+  background: rgb(44 56 48 / 7%);
   border: 1px solid var(--ep-line-1);
   border-radius: 8px;
   outline: 0;
@@ -5841,7 +5957,7 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 }
 
 .ty-preferences .search-input:focus {
-  background: rgb(44 56 48 / 8%);
+  background: rgb(44 56 48 / 10%);
   border-color: rgb(119 145 79 / 32%);
   box-shadow: 0 0 0 3px rgb(119 145 79 / 9%);
 }
@@ -5980,10 +6096,10 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   border-radius: 14px;
   overflow-y: auto;
   background: var(--ep-bg-card);
-  box-shadow: 0 0 0 1px rgb(44 56 48 / 9%),
+  box-shadow: 0 0 0 1px rgb(44 56 48 / 8%),
     inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 10px 24px rgb(40 50 44 / 12%),
-    0 8px 20px rgb(119 145 79 / 5%);
+    0 8px 20px rgb(40 50 44 / 10%),
+    0 10px 24px rgb(119 145 79 / 4%);
   scrollbar-gutter: stable;
   font-family: var(--ep-font-body);
   font-size: 17px;
@@ -6577,11 +6693,12 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   box-shadow: 0 0 0 3px rgb(119 145 79 / 13%);
 }
 
-/* 聚焦态统一为绿色柔光环：清掉原生蓝色边框、蓝色投影与 1px 圆角动画 */
+/* 聚焦态只加深描边与柔光环、不改底色：输入框与下拉点击前后底色
+   一致，下拉选择完成后无需点空白处恢复；清掉原生蓝色边框、蓝色
+   投影与 1px 圆角动画 */
 .ty-preferences input:not([type='checkbox']):not([type='radio']):focus,
 .ty-preferences textarea:focus,
 .ty-preferences select:focus {
-  background-color: rgb(44 56 48 / 8%);
   animation: none !important;
   border-radius: 8px !important;
   border-color: rgb(119 145 79 / 36%) !important;
@@ -6649,8 +6766,12 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   box-shadow: none !important;
 }
 
+/* 细边档外圈仍须撑满 20px：1px 边框下内容盒取 18px 补足外径，
+   外圈中心与实心点锚点（盒原点 10px,10px）保持重合，实心点不偏心 */
 .ty-preferences input[type='checkbox']::before,
 .ty-preferences input[type='radio']::before {
+  width: 18px;
+  height: 18px;
   border-width: 1px !important;
   border-color: rgb(94 109 99 / 60%) !important;
   background-color: rgb(44 56 48 / 5%) !important;
@@ -6660,6 +6781,13 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 .ty-preferences input[type='radio']:checked::before {
   border-color: var(--ep-green-bright) !important;
   background-color: rgb(119 145 79 / 9%) !important;
+}
+
+/* 实心点锚定外圈中心，并按 125% 缩放的光栅化相位做亚像素校正：
+   横向右 0.03css、纵向累计上移 0.27css，点与外圈视觉同心 */
+.ty-preferences input[type='radio']::after {
+  top: 9.73px;
+  left: 10.03px;
 }
 
 /* 去掉原生 10px 外边距，行距由行高与内容列 8px 间距决定 */
@@ -6853,8 +6981,10 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   border-radius: 6px;
 }
 
-/* 导出页：原生灰底来自 export-detail 与列表控制条，
-   这里改回透明内容卡，只用左缘一道深绿细线分隔 */
+/* 导出页：原生灰底（export-detail 与列表控制条）压回透明；组布局
+   回归全局 240px+1fr 栅格，与文件、外观等页完全同构，仅导出页
+   独有的凹面会破坏整窗一致性；左列列表与组区之间留 32px 栏距，
+   与全局组间距同拍，字号继承全局 17px 行字 */
 .ty-preferences .export-detail,
 .ty-preferences .export-items-list-control,
 .ty-preferences .export-items-list,
@@ -6863,10 +6993,95 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 }
 
 .ty-preferences .export-detail {
-  border-left: 1px solid var(--ep-line-1);
+  border-left: 0;
   border-radius: 0;
-  margin: 0;
-  padding: 12px 24px;
+  margin: 0 16px 16px 32px;
+  padding: 0;
+  color: var(--ep-text);
+  font-size: inherit;
+}
+
+/* 页标题：导出页的 panel-header 悬在 export-config 之前、不在
+   .content 内，原生 h3 字形小且贴顶；所有页标题统一声明页标题
+   字形（与 .content h3 同值，两条规则叠加不改其它页渲染），导出
+   页由此获得 30px 字形与 24px 上距，首标题 4px 特例优先级更高 */
+.ty-preferences h3.panel-header {
+  margin: 24px 0 32px;
+  color: #33413a;
+  font-family: var(--ep-font-body);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+/* 导出页容器带原生内联 padding:0，压掉 .content 的 20px 顶距，
+   页标题因此贴顶；data-index='4' 唯一标记导出页容器，据此把页
+   标题上距补到 24px，字形顶位置与其它页（20px 顶距 + 4px 首标
+   题边距）一致 */
+.ty-preferences .content[data-index='4'] > h3.panel-header {
+  margin-top: 24px;
+}
+
+/* 命令参数是命令串：等宽字体是命令字段的底限表达；表面与其它
+   页的输入框保持原生一致 */
+.ty-preferences .export-config input[type='text'] {
+  font-family: var(--ep-font-code);
+  font-size: 15px;
+}
+
+/* 注入域文本域随栅格列铺满，长命令在域内换行，不越出内容列 */
+.ty-preferences .export-detail textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 左列格式列表：固定 208px 列宽容纳最长项名，选中底色完整包住
+   文字，并与右侧组区保持稳定栏距；行距、圆角与悬停态对齐全窗
+   行语言 */
+.ty-preferences .export-items-list {
+  flex: 0 0 auto;
+  min-width: 208px;
+  max-width: none;
+  width: 208px;
+}
+
+.ty-preferences .export-item {
+  padding: 5px 10px;
+  margin: 1px 8px;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: background-color var(--ep-speed) var(--ep-ease);
+}
+
+.ty-preferences .export-item:not(.active):hover {
+  background: rgb(44 56 48 / 5%);
+}
+
+/* 控制条：裸字符按钮收成小圆片，悬停染底提色 */
+.ty-preferences .export-items-list-control {
+  margin: 6px 10px 0;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.ty-preferences .export-items-list-control .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 1px;
+  border-radius: 6px;
+  opacity: 1;
+  color: var(--ep-text-secondary);
+  transition: background-color var(--ep-speed) var(--ep-ease),
+    color var(--ep-speed) var(--ep-ease);
+}
+
+.ty-preferences .export-items-list-control .icon-button:hover {
+  background: rgb(44 56 48 / 7%);
   color: var(--ep-text);
 }
 
@@ -6891,43 +7106,6 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 
 .ty-preferences .modal-footer {
   border-top: 1px solid var(--ep-line-1);
-}
-
-/* 滚动条：颜色与正文块一致（45% / 60% 主题绿），
-   6px 轨道配同宽滑块，比正文块 8px 更细；
-   轨道上下各内缩 14px，圆角端头不压住卡片圆角 */
-.ty-preferences ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background: transparent;
-}
-
-.ty-preferences ::-webkit-scrollbar-track {
-  margin-block: 14px;
-  background: transparent;
-}
-
-/* 横向滚动条两端内缩 14px：内缩必须写在轨道上（此渲染器忽略
-   滑块自身的 margin），滑块被限制在轨道内容盒内，
-   两端不再压住卡片圆角；与竖向轨道的 margin-block 内缩同参数 */
-.ty-preferences ::-webkit-scrollbar-track:horizontal {
-  margin-inline: 14px;
-}
-
-.ty-preferences ::-webkit-scrollbar-thumb {
-  min-height: 42px;
-  background-color: rgb(119 145 79 / 32%);
-  border: 0;
-  border-radius: 999px;
-  transition: background-color var(--ep-speed) var(--ep-ease);
-}
-
-.ty-preferences ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(119 145 79 / 42%);
-}
-
-.ty-preferences ::-webkit-scrollbar-corner {
-  background: transparent;
 }
 
 /* 许可证信息：说明行与按钮行拼成一张浮起卡片，
@@ -7202,47 +7380,91 @@ body #plugin-action-buttons .action-item:active {
   }
 }
 
-/* 插件标签栏：标签四角统一 6px 圆角（与绿条圆角同档）+ 轻影 + 悬停亮一档；
-   绿条挂在每个标签顶部，切换时旧条收拢、新条从中心展开 */
-#plugin-window-tab .tab-container {
-  border-radius: var(--ep-radius-chip) !important;
-  box-shadow: 0 2px 6px rgb(40 50 44 / 8%);
+/* 插件标签栏：悬浮芯片语言。页签收成比条带矮 8px 的圆角芯片：
+   上下各留 4px 空隙、页签之间隔 6px。顶两角 3px 与绿条同高、底
+   两角 6px 保持悬浮语言：绿条 3px 高正好盖满整个顶弧区，底边两
+   角与芯片直边齐平；顶角若同为 6px，绿条盖不满弧区，两端会露出
+   白肩与条带楔缝。overflow: hidden 把绿条与内部高亮一起裁进圆角
+   轮廓。激活页签抬升底色带一丝绿的非纯白、加两层投影浮起，非激
+   活页签透明融入条带，全组不描边 */
+body #plugin-window-tab .tab-container {
+  height: calc(var(--wt-tab-height) - 8px);
+  margin: 4px 3px;
+  border-radius: 3px 3px var(--ep-radius-chip) var(--ep-radius-chip) !important;
+  overflow: hidden;
+  background-color: transparent;
+  border: 0;
   transition: background-color var(--ep-speed) var(--ep-ease),
     border-radius var(--ep-speed) var(--ep-ease),
+    box-shadow var(--ep-speed) var(--ep-ease),
     transform 120ms var(--ep-ease);
 }
 
-/* 悬停底色与关闭键染红都加 body 前缀提特异性：插件样式注入在主题
-   之后，同优先级时插件的 .active 底色与 --wt-active-bg-color 会
-   压掉这里的悬停色（body 前缀即稳赢，与下方加号键同一手法） */
-body #plugin-window-tab .tab-container:hover {
-  background-color: rgb(44 56 48 / 6%);
-  border-radius: var(--ep-radius-chip) !important;
+/* 激活芯片：抬升底色加近影远影两层投影表达浮起，描边整圈透明。
+   body 与 .active 双前缀压过插件的 .active 规则（插件样式注入在
+   主题之后，同优先级会被反超） */
+body #plugin-window-tab .tab-container.active {
+  background-color: #fbfdf9;
+  box-shadow: 0 1px 2px rgb(40 50 44 / 8%), 0 2px 6px rgb(40 50 44 / 7%);
 }
 
-/* 点击下沉：标签顶端贴着窗口上沿不用缩放，下沉 1px 加底色加深一档；
-   排除拖拽中的标签，避免 transform 改变拖拽幽灵的定位基准 */
-#plugin-window-tab .tab-container:active:not([dragging]) {
+/* 非激活悬停染底：排除激活芯片，抬升面不被悬停色罩灰 */
+body #plugin-window-tab .tab-container:not(.active):hover {
+  background-color: rgb(44 56 48 / 6%);
+}
+
+/* 点击下沉 1px：非激活芯片下沉时底色加深一档，激活芯片只位移、
+   抬升面保持不变；排除拖拽中的标签，避免 transform 改变拖拽幽灵
+   的定位基准 */
+body #plugin-window-tab .tab-container:not(.active):active:not([dragging]) {
   transform: translateY(1px);
   background-color: rgb(44 56 48 / 10%);
 }
 
-/* 绿条：所有标签常驻 ::before，非激活收拢为不可见，激活时从中心展开 */
-#plugin-window-tab .tab-container::before {
+body #plugin-window-tab .tab-container.active:active:not([dragging]) {
+  transform: translateY(1px);
+}
+
+/* 拖拽中的标签保持芯片外距：插件对 [dragging] 置 margin: 0 供
+   拖拽定位测量，置零会让相邻页签横向跳动 6px，这里按芯片布局
+   保持不变，拖拽全程几何一致 */
+body #plugin-window-tab .tab-container[dragging] {
+  margin: 4px 3px;
+}
+
+/* 隐藏页签右侧的占位横线：插件用 tab-bar::after 的下边线把空区
+   补成一条通栏直线，与卡片化页签的悬浮语言不符，整条去掉 */
+body #plugin-window-tab .tab-bar::after {
+  border-bottom: 0;
+}
+
+/* 加号键自带的下边线：插件给 .add-button 描了 7% 黑的底边，键体
+   高度通到条带底缘，这条线就是加号键下方那段短横线，去掉 */
+body #plugin-window-tab .add-button {
+  border-bottom: 0;
+}
+
+/* 绿条：所有标签常驻 ::before，非激活收拢为不可见，激活时从中心
+   展开。通栏矩形、自身不带圆角，顶弧由芯片 3px 顶角经 overflow:
+   hidden 裁出，绿条高度与顶弧区同高，底边两角落在芯片直边上、
+   与侧边齐平；芯片边框占位已清零，0 值定位即芯片边缘。选择器加
+   body 与 .active 双前缀压过插件的 .active::before（插件样式注
+   入在主题之后，同优先级会被反超） */
+body #plugin-window-tab .tab-container::before,
+body #plugin-window-tab .tab-container.active::before {
   content: '';
   position: absolute;
-  top: -1px;
-  left: -1px;
-  right: -1px;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 3px;
   z-index: 1;
-  border-radius: var(--ep-radius-chip) var(--ep-radius-chip) 0 0;
   background-color: var(--wt-icon-color);
   transform: scaleX(0);
   transition: transform 0.28s var(--ep-ease-out);
 }
 
-#plugin-window-tab .tab-container.active::before {
+body #plugin-window-tab .tab-container.active::before {
   transform: scaleX(1);
 }
 
