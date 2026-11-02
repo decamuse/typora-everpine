@@ -5239,6 +5239,53 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   display: none !important;
 }
 
+/* 全部替换等操作反馈条：原生把外层行整体涂成米黄警示（#eee 底、
+   #8a6d3b 字、13px 小字、4px 圆角、限高 28px），这里整行收编为卡
+   片内的安静状态行：10% 主题绿底、8px 圆角、正文字号行高；内层
+   警示壳转 contents 透传，勾标亮绿，关闭与撤销收成行尾小字钮 */
+#md-searchpanel #searchpanel-msg {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  color: var(--ep-text);
+  font-size: 14px;
+  line-height: 20px;
+  background: var(--ep-hover-green);
+  border: 0;
+  border-radius: 8px;
+  max-height: none;
+}
+
+#md-searchpanel #searchpanel-msg .alert {
+  display: contents;
+}
+
+#md-searchpanel #searchpanel-msg .searchpanel-msg-icon {
+  color: var(--ep-green-bright);
+  font-size: 13px;
+}
+
+#md-searchpanel #searchpanel-msg .searchpanel-msg-btn {
+  margin-left: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: var(--ep-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--ep-speed) var(--ep-ease),
+    color var(--ep-speed) var(--ep-ease);
+}
+
+#md-searchpanel #searchpanel-msg #searchpanel-msg-close-btn {
+  margin-left: auto;
+}
+
+#md-searchpanel #searchpanel-msg .searchpanel-msg-btn:hover {
+  color: var(--ep-text);
+  background: rgb(44 56 48 / 7%);
+}
+
 /* 左列「查找 / 替换」标签：容器只做命中区，视觉全部画在 ::before 面片上。
    替换标签自带 translateY(-50%) 定位，按压若写容器 transform 会覆盖
    定位位移，按钮下坠、光标滑出、click 丢失；面片缩放不碰容器几何 */
