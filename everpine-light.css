@@ -93,13 +93,13 @@ body {
 :root {
   /* 字体：按文档结构分三类，改一处即全主题生效 */
   /* 正文：标题、段落、列表、表格、引用与左侧大纲 */
-  --ep-font-body: 'SourceHanSansSC', 'Source Han Serif SC', 'PingFang SC',
+  --ep-font-body: 'Source Han Serif SC', 'SourceHanSansSC', 'PingFang SC',
     'Microsoft YaHei', sans-serif;
   /* 代码：代码块、行内代码、键帽 */
-  --ep-font-code: 'MapleMonoNL-NFMono-CN-Regular', 'Cascadia Mono', 'Consolas',
+  --ep-font-code: 'Cascadia Mono', 'MapleMonoNL-NFMono-CN-Regular', 'Consolas',
     monospace;
   /* 界面：菜单、标题栏、窗口标签、文件树、偏好设置与正文目录标签 */
-  --ep-font-ui: 'lxgwwenkai', 'Zhuque Fangsong (technical preview)', 
+  --ep-font-ui: 'Zhuque Fangsong (technical preview)', 'lxgwwenkai', 
     'SourceHanSansSC', sans-serif;
 
   /* Typora 官方接口变量 */

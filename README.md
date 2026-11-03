@@ -3,9 +3,9 @@
 </div>
 <div align="center">
 
-[![Typora](https://img.shields.io/badge/Typora-Theme-a7c080?style=flat-square)](https://typora.io)
-[![Style](https://img.shields.io/badge/Style-Dark%20%26%20Light%20Multicolor-83c092?style=flat-square)](#五成品截图)
-[![License](https://img.shields.io/badge/License-MIT-7fbbb3?style=flat-square)](LICENSE)
+[! [Typora](https://img.shields.io/badge/Typora-Theme-a7c080?style=flat-square)](https://typora.io)
+[! [Style](https://img.shields.io/badge/Style-Dark%20%26%20Light%20Multicolor-83c092?style=flat-square)](#五成品截图)
+[! [License](https://img.shields.io/badge/License-MIT-7fbbb3?style=flat-square)](LICENSE)
 
 </div>
 
@@ -191,7 +191,76 @@ Typora 主题文件夹的默认路径：
 
 ![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word.png)
 
-## 六、许可
+## 六、Word 导出样式说明
+
+### 6.1 页面设置
+
+| 项目 | 设置 |
+|:---|:---|
+| 纸张 | A4，11906 × 16838 缇（210 × 297 mm） |
+| 页边距 | 上下 1440 缇（2.54 cm），左右 1800 缇（3.17 cm） |
+| 页眉 | 无 |
+| 页脚 | PAGE 域，小五 Times New Roman，居中 |
+| 页眉距离 | 851 缇 |
+| 页脚距离 | 992 缇 |
+
+### 6.2 标题
+
+| Markdown 写法 | 样式 | 字体 | 字号 | 段落与编号 |
+|:---|:--:|:--:|:--:|:---|
+| 一级标题 `#` | H1 | 宋体加粗 | 三号（16 pt） | 居中，段前段后 0.5 行，编号「第 N 章」 |
+| 二级标题 `##` | H2 | 黑体 | 小三（15 pt） | 左对齐，段前段后 0.3 行，编号 N.N |
+| 三级标题 `###` | H3 | 黑体 | 四号（14 pt） | 编号 N.N.N |
+| 四级标题 `####` | H4 | 宋体 | 小四（12 pt） | 首行缩进 2 字符，编号 N.N.N.N |
+| 五级标题 `#####` | H5 | 宋体 | 小四（12 pt） | 首行缩进 2 字符，编号（1） |
+| 六级标题 `######` | H6 | 宋体 | 小四（12 pt） | 首行缩进 2 字符，编号 ① |
+| 摘要、ABSTRACT、目录、参考文献、致谢、附录 | - | 宋体加粗 | 三号（16 pt） | 居中，无编号，保留大纲级别 |
+
+过滤器自动识别摘要、ABSTRACT、目录、参考文献、致谢、附录六个一级标题并切换到无编号样式。
+
+### 6.3 正文、代码与引用
+
+| 元素 | 字体 | 字号 | 段落 |
+|:---|:---|:---|:---|
+| 正文段落 | 宋体 + Times New Roman | 小四（12 pt） | 两端对齐，首行缩进 2 字符，1.25 倍行距 |
+| 引用框、告警框内正文 | 楷体 + Times New Roman | 五号（10.5 pt） | 两端对齐，1.25 倍行距 |
+| 框内无序列表 | 楷体 + Times New Roman | 五号（10.5 pt） | 悬挂缩进 210 缇，制表位 210，换行对齐正文 |
+| 框内有序列表 | 楷体 + Times New Roman | 五号（10.5 pt） | 悬挂缩进 420 缇，制表位 420，容纳两位数编号 |
+| 代码块 | 宋体 + Courier New | 五号（10.5 pt） | 左对齐，四边细边框 |
+| 行内代码 | 宋体 + Times New Roman | 小四（12 pt） | 无额外字形，随正文呈现 |
+| 参考文献条目 | 宋体 + Times New Roman | 五号（10.5 pt） | 1.25 倍行距 |
+| 行间公式 | 宋体 + Times New Roman | 小四（12 pt） | 居中 |
+| 脚注 | 宋体 + Times New Roman | 五号（10.5 pt） | - |
+
+### 6.4 图片、表格与引用
+
+图片与表题：
+
+| 元素 | 字体 | 字号 | 段落 |
+|:---|:--:|:--:|:---|
+| 图片段落 | - | - | 居中，无首行缩进 |
+| 图题 | 黑体 + Times New Roman | 五号（10.5 pt） | 居中，段前段后 0，1.25 倍行距 |
+| 表题 | 黑体 + Times New Roman | 五号（10.5 pt） | 居中，段前段后 0，1.25 倍行距 |
+
+表格：
+
+| 元素 | 字体 | 字号 | 段落 |
+|:---|:---|:--:|:---|
+| 表头行 | 黑体 | 五号（10.5 pt） | 列对齐跟随 markdown 的 `:---`、`:---:`、`---:` 标记 |
+| 单元格文字 | 黑体 + Times New Roman | 五号（10.5 pt） | 列对齐跟随 markdown 的列标记 |
+
+引用框与告警框：
+
+| Markdown 写法 | 竖条色 | 底色 |
+|:---|:---|:---|
+| 引用块 `>` | 516259 | F0F2EF |
+| `::: note` | 4A8F89 | EFF5F4 |
+| `::: tip` | 77914F | F3F5EF |
+| `::: important` | A86E8C | F7F2F5 |
+| `::: warning` | A07D2C | F6F3EC |
+| `::: caution` | B25C5C | F8F0F0 |
+
+## 七、许可
 
 本主题采用 MIT 许可证发布。
 
