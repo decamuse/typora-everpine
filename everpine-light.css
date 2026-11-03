@@ -612,7 +612,7 @@ content::-webkit-scrollbar-thumb:vertical:active {
 }
 
 /* --------------------------------------------------------------------------
-   标题：h2 起为章级，色相各司其职，亮度随层级递减
+   标题：h1 题名级居中，h2 起为章级，色相各司其职，亮度随层级递减
    h2 绿 → h3 青 → h4 紫 → h5 橙 → h6 灰绿小标签
    -------------------------------------------------------------------------- */
 
@@ -633,6 +633,7 @@ content::-webkit-scrollbar-thumb:vertical:active {
   margin-top: 2rem;
   font-size: 3rem;
   color: var(--ep-green-bright);
+  text-align: center;
 }
 
 #write h2 {
