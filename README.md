@@ -3,9 +3,9 @@
 </div>
 <div align="center">
 
-[! [Typora](https://img.shields.io/badge/Typora-Theme-a7c080?style=flat-square)](https://typora.io)
-[! [Style](https://img.shields.io/badge/Style-Dark%20%26%20Light%20Multicolor-83c092?style=flat-square)](#五成品截图)
-[! [License](https://img.shields.io/badge/License-MIT-7fbbb3?style=flat-square)](LICENSE)
+[![Typora](https://img.shields.io/badge/Typora-Theme-a7c080?style=flat-square)](https://typora.io)
+[![Style](https://img.shields.io/badge/Style-Dark%20%26%20Light%20Multicolor-83c092?style=flat-square)](#五成品截图)
+[![License](https://img.shields.io/badge/License-MIT-7fbbb3?style=flat-square)](LICENSE)
 
 </div>
 
@@ -189,7 +189,9 @@ Typora 主题文件夹的默认路径：
 
 #### Word
 
-![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word.png)
+![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word-1.png)
+
+![Word 导出：导航窗格与告警框样式](笔记图片/导出-Word-2.png)
 
 ## 六、Word 导出样式说明
 

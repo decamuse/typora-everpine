@@ -131,10 +131,10 @@ local function figure_blocks(blk)
   return out, last_has_cap
 end
 
--- 列表项里的图片：规范要求图的位置居中，列表段带项目符号缩进，
--- 图片留在列表里无法居中；这里把列表项内的图片段提升为列表之后
--- 的独立插图（与顶层图片同一套 Figure / Image Caption 处理），
--- 只剩文字的条目保留，图片被提空的条目删除，嵌套列表递归处理。
+-- 列表项里的图片：图片段紧随所属条目，保持条目与插图的对应关系，
+-- 与顶层图片同一套 Figure / Image Caption 处理；图片作为条目的
+-- 后续段落，按列表续行缩进在条目可用宽度内居中。代码块、引用块
+-- 与告警框仍提升到列表之后，嵌套列表递归处理。
 local function is_alert_div(blk)
   if blk.t ~= "Div" then return false end
   for _, c in ipairs(blk.classes) do
@@ -151,7 +151,9 @@ local function split_figs(blocks, in_list)
     local b = blocks[i]
     if is_image_only_para(b) then
       local fbs, has_cap = figure_blocks(b)
-      local dest = in_list and figs or out
+      -- 列表项内的图片留在原地：条目文字、插图、图题按 markdown
+      -- 顺序连续输出，插图不会脱离所属条目堆到列表末尾
+      local dest = out
       for _, fb in ipairs(fbs) do
         dest[#dest + 1] = fb
       end
@@ -180,9 +182,9 @@ local function split_figs(blocks, in_list)
         b.content = newitems
         out[#out + 1] = b
       end
-      -- 列表整体处理完后，条目里提升出的插图紧跟列表；列表项内
-      -- dest 与 figs 是同一个表，先把 figs 换成新表再回填，避免
-      -- 对正在 ipairs 遍历的表追加元素导致死循环与内存耗尽
+      -- 列表整体处理完后，条目里提升出的代码块与引用框紧跟列表；
+      -- 列表项内 dest 与 figs 是同一个表，先把 figs 换成新表再回填，
+      -- 避免对正在 ipairs 遍历的表追加元素导致死循环与内存耗尽
       local drained = figs
       figs = {}
       local dest = in_list and figs or out
@@ -205,11 +207,12 @@ local function is_display_math_block(blk)
     and blk.content[1].mathtype == "DisplayMath"
 end
 
--- 5) 列表里的代码块、引用块、告警框：与图片同理提升到列表之后。
--- 引用块与告警框内部的列表改为带前缀的段落：pandoc 给列表段落
--- 写死的编号缩进（numbering 级，压过样式缩进）会让项目符号位置
--- 无法从参考文档控制，还会打断竖条与底纹；转成普通段落后，前缀
--- 落在文字起点，后跟制表符把正文推进到悬挂缩进位，换行对齐到
+-- 5) 列表里的代码块、引用块、告警框提升到列表之后：引用块与告警框
+-- 要按整栏宽的单格表格渲染，代码块在列表项内会带上续行的编号缩进，
+-- 三者统一放到列表之后。引用块与告警框内部的列表改为带前缀的段落：
+-- pandoc 给列表段落写死的编号缩进（numbering 级，压过样式缩进）会让
+-- 项目符号位置无法从参考文档控制，还会打断竖条与底纹；转成普通段落后，
+-- 前缀落在文字起点，后跟制表符把正文推进到悬挂缩进位，换行对齐到
 -- 正文而不是前缀下。制表符必须包在 run 里，裸 <w:tab/> 写在
 -- 段落层会被 Word 忽略；制表位由段样式的显式 tab stop 给出，
 -- 无序列表用 210 缇，有序列表编号更宽，用 315 缇。
