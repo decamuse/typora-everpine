@@ -107,8 +107,8 @@ body {
   /* 窗口与菜单底 */
   --bg-color: #0a0d0b;
 
-  /* 侧边栏背景 */
-  --side-bar-bg-color: #0c100e;
+  /* 侧边栏背景（与 --ep-bg-sidebar 保持同值） */
+  --side-bar-bg-color: #0e1310;
 
   /* 基础文字颜色 */
   --text-color: #c9d3cc;
@@ -139,8 +139,8 @@ body {
   --primary-color: #a7c080;
   --primary-btn-border-color: #a7c080;
 
-  /* markdown 语法控制字符（#、**、`` 等） */
-  --md-char-color: #6f7973;
+  /* markdown 语法控制字符（#、**、`` 等），与 faint 同档 */
+  --md-char-color: #77817b;
 
   /* yaml front matter 文字 */
   --meta-content-color: #939f98;
@@ -160,19 +160,20 @@ body {
   /* mermaid 图表用暗色渲染 */
   --mermaid-theme: dark;
 
-  /* Everpine 表面：六档底色，由深到浅 */
+  /* Everpine 表面：六档底色，由深到浅；画布、目录、正文
+     各留一级可辨亮度台阶（越高越亮） */
   --ep-bg-window: #0a0d0b;
-  --ep-bg-sidebar: #0c100e;
-  --ep-bg-card: #111513;
+  --ep-bg-sidebar: #0e1310;
+  --ep-bg-card: #121714;
   --ep-bg-raised: #171c19;
   --ep-bg-quote: rgb(143 163 152 / 5%);
   --ep-bg-code: #1a231d;
   --ep-bg-popover: #1e2521;
 
-  /* Everpine 文字 */
+  /* Everpine 文字：faint 对目录底 4.66:1、正文卡底 4.50:1（AA 线 4.5:1） */
   --ep-text: #c9d3cc;
   --ep-text-secondary: #939f98;
-  --ep-text-faint: #6f7973;
+  --ep-text-faint: #77817b;
   --ep-comment: #8e9b92;
 
   /* Everpine 强调色：低饱和绿系为主；链接色与交互绿同值 */
@@ -238,18 +239,25 @@ body {
   caret-color: var(--ep-green);
 }
 
-/* 卡片描边：外圈白细线 + 顶边内高光 + 极淡绿光投影。
-   两卡同级同款阴影：同一 7% 描边、同一内高光、同一绿光轻投影，
-   层级关系交给 8px 缝隙与底色差表达 */
+/* 卡片描边：外圈白细线定边 + 顶边内高光；深色底上投影不可读，
+   不设投影。层级由底色阶梯（画布 #0a0d0b < 目录 #0e1310 <
+   正文 #121714）与 8px 缝隙表达，正文内高光比目录亮一档 */
 content {
   right: 8px !important;
   bottom: 8px !important;
   left: 8px !important;
   background-color: var(--ep-bg-card);
   border-radius: var(--ep-radius-card);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 7%),
-    inset 0 1px 0 rgb(255 255 255 / 5%),
-    0 8px 20px rgb(167 192 128 / 6%);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 7%);
+}
+
+/* 经典模式无页签对齐：经典模式基线为 0，原生正文卡顶从页内 0 起算，
+   目录卡顶在 8px，两卡顶差一个网格缝。这里补上顶缝，卡顶 =
+   基线 + 8 与目录卡对齐；有页签时条带另占 40px 横带，卡顶由
+   下方有页签规则接管，本规则经 :not(:has) 自动让位 */
+body.native-window:not(:has(#plugin-window-tab:not(.plugin-common-hidden))):not(.megamenu-opened) content {
+  top: calc(var(--ep-top-baseline) + 8px) !important;
 }
 
 /* 窗口基线：无框模式页内自绘顶栏占 28px；经典模式（body.native-window，
@@ -789,7 +797,7 @@ content::-webkit-scrollbar-thumb:vertical:active {
   width: 30px;
   height: 26px;
   padding: 0;
-  /* 常态红：正文卡底 #111513 比浮层更深，同档红对比更高直接通用 */
+  /* 常态红：正文卡底 #121714 比浮层更深，同档红对比更高直接通用 */
   color: #ca7a7a;
   line-height: 1;
   background: transparent;
@@ -1166,7 +1174,7 @@ blockquote {
 }
 
 /* 五类底色：凹面通知板 —— 24% 暗底垫到贴近目录卡的深度档
-   （卡片 #111513 上 13% 黑几乎不可见，24% 才读得出凹面），
+   （卡片 #121714 上 13% 黑几乎不可见，24% 才读得出凹面），
    品类色 10% 淡染作色相信号，左条 55%，标签字与图标同色。
    引用框保持平铺中性染，两者自此分属两类表面：浅色中性旁注 vs
    深色品类通知（暗色界面 callout 的通行做法：品类色低透明淡染
@@ -2167,12 +2175,11 @@ input[type='radio']:checked::after {
   background: var(--ep-bg-sidebar);
   border-radius: var(--ep-radius-card);
   /* 原生 window.css 在 #typora-sidebar 上写死 box-shadow:none，
-     主题规则必须 !important 才能显示。两卡同级同款阴影：与正文卡
-     完全一致的 7% 描边、内高光与绿光轻投影，两卡观感一致，
-     层级关系交给 8px 缝隙与底色差表达 */
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 7%),
-    inset 0 1px 0 rgb(255 255 255 / 5%),
-    0 8px 20px rgb(167 192 128 / 6%) !important;
+     主题规则必须 !important 才能显示。浮卡低档：与正文卡同款
+     8% 白细描边，内高光暗一档（6% 对 7%）表达低半层；
+     深色底上投影不可读，不设投影，层级由底色阶梯承担 */
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 6%) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -2555,6 +2562,17 @@ input[type='radio']:checked::after {
 
 #sidebar-files-menu .ty-side-sort-btn.active:hover {
   background-color: rgb(167 192 128 / 22%);
+}
+
+/* 菜单文字与分组线：标题、菜单项与分组标签（排序、最近使用的目录）
+   统一主题 UI 字体，原生只定 12px 字号未定字体家族；分组线是菜单内
+   的功能分组锚，保留但比浮层描边淡一档（原生走 --window-border） */
+#sidebar-files-menu {
+  font-family: var(--ep-font-ui);
+}
+
+#sidebar-files-menu>.show+.menuitem-group-label.show {
+  border-top: 1px solid var(--ep-line-1) !important;
 }
 
 /* 文件树：当前文件行保留底色（原生 active）与 4px 绿竖条，其余行无任何底色；
@@ -3037,6 +3055,13 @@ input[type='radio']:checked::after {
 /* 目录底部工具行三态：新建常显；文件夹菜单、列表切换与大纲按钮
    常驻 0.4 幽灵，仅悬停工具行整行恢复 1（不在目录栏悬停时浮现）；
    不动 .sidebar-footer 的位置尺寸，行贴底与正文卡页脚行对齐 */
+
+/* 文件树工具行上缘的原生分隔线去掉：浮动卡片语言下工具行贴卡底，
+   卡缘本身就是边界，卡内不再画通栏横线（原生 .sidebar-footer 的
+   border-top 走 --window-border） */
+.sidebar-footer {
+  border-top: 0;
+}
 
 .sidebar-footer .sidebar-footer-item {
   border-radius: var(--ep-radius-tip);
@@ -5086,7 +5111,8 @@ body.ty-show-notification:not(.on-search-panel-open):not(.show-preference-panel)
 /* 查找替换面板：内容自适应的整块悬浮卡片。
    原生 max-height 会截断卡片，导致底部替换行露出卡片之外 */
 #md-searchpanel {
-  top: 36px !important;
+  /* 顶 = 基线 + 网格缝 8：无框 36、经典 8，随正文卡顶对齐 */
+  top: calc(var(--ep-top-baseline) + 8px) !important;
   left: 8px !important;
   right: 8px !important;
   height: auto !important;
@@ -7381,11 +7407,11 @@ body #plugin-window-tab .tab-container {
     transform 120ms var(--ep-ease);
 }
 
-/* 激活芯片：抬升底色加近影远影两层投影表达浮起，描边整圈透明。
-   body 与 .active 双前缀压过插件的 .active 规则（插件样式注入在
-   主题之后，同优先级会被反超） */
+/* 激活芯片：抬升底色取浮起档（比正文卡高一级，引用变量随卡联动），
+   加近影远影两层投影表达浮起，描边整圈透明。body 与 .active 双前缀
+   压过插件的 .active 规则（插件样式注入在主题之后，同优先级会被反超） */
 body #plugin-window-tab .tab-container.active {
-  background-color: #1e2521;
+  background-color: var(--ep-bg-raised);
   box-shadow: 0 1px 2px rgb(0 0 0 / 35%), 0 2px 6px rgb(0 0 0 / 18%);
 }
 
