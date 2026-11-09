@@ -622,6 +622,31 @@ content::-webkit-scrollbar-thumb:vertical:active {
   padding-bottom: 8px;
 }
 
+/* 代码块滚动条粗度与文件树同档：槽位 7px，纵向滑块常态左右各内缩
+   2px 成 3px 居中胶囊，悬停与按住各收 1px 放宽到 5px（正文档为
+   8px 槽 4px/6px）；横向滑块随槽位收细，无粗度分档。底色沿用全局
+   滑块的 30% 与 40% 两档，不再另设。编辑器里滚动条画在 CodeMirror
+   的 .CodeMirror-vscrollbar 与 .CodeMirror-hscrollbar 容器上，HTML
+   导出件里长在 pre.md-fences 自身，两处一并收细 */
+.md-fences::-webkit-scrollbar,
+.md-fences ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.md-fences ::-webkit-scrollbar-thumb:vertical {
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.md-fences ::-webkit-scrollbar-thumb:vertical:hover,
+.md-fences ::-webkit-scrollbar-thumb:vertical:active {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  background-clip: padding-box;
+}
+
 /* --------------------------------------------------------------------------
    标题：h1 题名级居中，h2 起为章级，色相各司其职，亮度随层级递减
    h2 绿 → h3 青 → h4 紫 → h5 橙 → h6 灰绿小标签
