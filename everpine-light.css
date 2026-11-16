@@ -1572,8 +1572,28 @@ figure {
 #write hr {
   margin: 2rem auto;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgb(94 109 99 / 30%), transparent);
+  background: linear-gradient(to right, transparent, rgb(94 109 99 / 38%), transparent);
   border: none;
+}
+
+/* 选中态：行被选中时包装层带 .md-focus，成品关闭原生焦点圈，
+   线体转为主题绿，中段 12%～88% 为完整色带并附双层微光，
+   与行悬停光晕同一语言 */
+#write .md-hr {
+  outline: none;
+}
+
+#write .md-hr.md-focus hr {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(84 102 56 / 85%) 12%,
+    rgb(84 102 56 / 85%) 88%,
+    transparent
+  );
+  box-shadow:
+    0 0 3px rgb(84 102 56 / 25%),
+    0 0 14px rgb(84 102 56 / 14%);
 }
 
 /* --------------------------------------------------------------------------
@@ -2477,6 +2497,45 @@ input[type='radio']:checked::after {
 .file-node-open-state .fa-caret-right,
 .file-node-open-state .fa-caret-down {
   color: var(--ep-green) !important;
+}
+
+/* 文件树重命名输入框：编辑态整行 flex 垂直居中，进入重命名时
+   所在行高度不变；输入框铺满行内剩余宽度，抬升面板底、一线描边、
+   圆角与主题绿焦点环，与侧栏其余控件同一套语言 */
+#file-library-tree .file-node-on-edit > .file-node-content {
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 0;
+}
+
+#file-library-tree .file-node-on-edit > .file-node-content > .file-tree-rename-div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#file-library-tree .file-tree-rename-input {
+  box-sizing: border-box;
+  width: 100% !important;
+  height: 22px;
+  padding: 0 7px;
+  color: var(--ep-text);
+  font-family: var(--ep-font-ui);
+  font-size: 14px;
+  background: var(--ep-bg-raised);
+  border: 1px solid var(--ep-line-3);
+  border-radius: var(--ep-radius-chip);
+  caret-color: var(--ep-green);
+  outline: none;
+  box-shadow: none;
+  transition: border-color var(--ep-speed) var(--ep-ease),
+    box-shadow var(--ep-speed) var(--ep-ease);
+}
+
+#file-library-tree .file-tree-rename-input:focus,
+#file-library-tree .file-tree-rename-input:focus-visible {
+  border-color: rgb(84 102 56 / 60%);
+  box-shadow: 0 0 0 2px rgb(84 102 56 / 12%);
+  outline: none;
 }
 
 /* 工具行文件夹名：走界面字体（LXGWWenKai），在整条工具行内水平垂直居中；
