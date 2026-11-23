@@ -162,7 +162,7 @@ body {
 
   /* Everpine 表面：画布（窗口底）全场最深，目录卡、正文卡、激活
      页签逐档变亮浮于其上；引用为半透明叠层；代码面板为独立浅灰
-     绿底（比正文卡深半档）；浮层纯白 */
+     绿底（比正文卡深半档）；浮层纯白，悬停笺纸染绿米白 */
   --ep-bg-window: #e4e9df;
   --ep-bg-sidebar: #f2f5ee;
   --ep-bg-card: #f8faf5;
@@ -170,12 +170,17 @@ body {
   --ep-bg-quote: rgb(94 112 100 / 6%);
   --ep-bg-code: #e9eee6;
   --ep-bg-popover: #ffffff;
+  --ep-bg-tip: #f7f9ef;
 
   /* Everpine 文字：secondary 对侧栏底 5.42:1、faint 5.28:1，
      均高于 4.5:1 达标线（计数、路径类辅助文字） */
   --ep-text: #2f3933;
   --ep-text-secondary: #58675f;
   --ep-text-faint: #5c6862;
+  /* 完成态文字与勾选框的灰：对正文卡底 #f8faf5 分别取 3.87:1 与
+     3.24:1，文字深一档保可读，勾选框浅一档读作完成 */
+  --ep-task-done-text: #7b7f7c;
+  --ep-task-done-ink: #888c89;
   --ep-comment: #626d67;
 
   /* Everpine 强调色：低饱和绿系为主，浅底上整体加深保对比；
@@ -208,21 +213,26 @@ body {
   --ep-hover-green-strong: rgb(119 145 79 / 14%);
   --ep-active-green: rgb(119 145 79 / 20%);
 
-  /* 圆角四档 */
+  /* 圆角档位：嵌入面家族（代码 14、表格 12）略圆于着色层（10） */
   --ep-radius-card: 16px;
   --ep-radius-code: 14px;
+  --ep-radius-table: 12px;
   --ep-radius-block: 10px;
   --ep-radius-chip: 6px;
   --ep-radius-tip: 4px;
 
-  /* 阴影：浅底上以深绿灰低透明度分层投影，卡片靠细描边加柔投影撑出立体 */
-  --ep-shadow-card: 0 0 0 1px rgb(44 56 48 / 6%),
-    0 1px 2px rgb(40 50 44 / 5%), 0 4px 14px rgb(40 50 44 / 5%);
+  /* 阴影：浅底上以深绿灰低透明度分层投影；embed 为嵌入正文卡的
+     块级面（表格、代码块）专用：三层柔影，模糊量全部大于偏移，
+     远层负扩散收边，边缘无硬线；透明度统一 5%，整体投出量克制，
+     只保留贴地浮起的层次读感 */
+  --ep-shadow-embed: 0 1px 2px rgb(40 50 44 / 5%),
+    0 3px 10px -2px rgb(40 50 44 / 5%),
+    0 10px 24px -8px rgb(40 50 44 / 5%);
   --ep-shadow-block: 0 1px 2px rgb(40 50 44 / 10%), 0 3px 8px rgb(40 50 44 / 7%);
   --ep-shadow-pop: 0 2px 6px rgb(40 50 44 / 10%), 0 10px 28px rgb(40 50 44 / 14%);
   --ep-shadow-float: 0 0 0 1px var(--ep-line-2), 0 6px 12px -3px rgb(40 50 44 / 12%),
     0 6px 18px rgb(40 50 44 / 12%);
-  --ep-shadow-img: 0 3px 8px rgb(40 50 44 / 12%), 0 10px 28px rgb(40 50 44 / 8%);
+  --ep-shadow-img: 0 2px 4px rgb(40 50 44 / 6%), 0 8px 16px rgb(40 50 44 / 8%);
 
   /* 动效 */
   --ep-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -243,10 +253,10 @@ body {
   caret-color: var(--ep-green);
 }
 
-/* 卡片描边：外圈深绿细线定边；投影用分层法，模糊半径逐层翻倍、
-   透明度恒定的五层叠成一枚连续柔影，近层勾接触感、远层给离地
-   高度，主角档；不设内高光，白底上不可见；层级由底色阶梯与
-   投影分档表达 */
+/* 卡片描边：外圈深绿细线定边；投影用分层法，模糊半径逐层加大、
+   负扩散逐层加大，投影主体落在卡片下方，横向不铺满四周的 8px
+   窗缝，缝隙保持窗口底色的干净观感；近层勾接触感、远层给离地
+   高度；不设内高光，白底上不可见；层级由底色阶梯与投影分档表达 */
 content {
   right: 8px !important;
   bottom: 8px !important;
@@ -254,9 +264,9 @@ content {
   background-color: var(--ep-bg-card);
   border-radius: var(--ep-radius-card);
   box-shadow: 0 0 0 1px rgb(44 56 48 / 6%),
-    0 1px 2px rgb(40 50 44 / 7%), 0 4px 4px rgb(40 50 44 / 6%),
-    0 8px 8px rgb(40 50 44 / 6%), 0 16px 16px rgb(40 50 44 / 5%),
-    0 32px 32px rgb(40 50 44 / 5%);
+    0 1px 2px rgb(40 50 44 / 7%), 0 4px 6px -2px rgb(40 50 44 / 6%),
+    0 8px 14px -6px rgb(40 50 44 / 6%), 0 16px 24px -10px rgb(40 50 44 / 5%),
+    0 28px 40px -18px rgb(40 50 44 / 5%);
 }
 
 /* 经典模式无页签对齐：经典模式基线为 0，原生正文卡顶从页内 0 起算，
@@ -895,6 +905,18 @@ content::-webkit-scrollbar-thumb:vertical:active {
   color: var(--ep-grey);
 }
 
+/* 条目悬停：文字随链接色提亮并整体右移 2px，150ms 过渡；
+   条目锚点转 inline-block 使位移生效，收回时同步回弹 */
+#write .md-toc-content .md-toc-inner {
+  display: inline-block;
+  transition: color var(--ep-speed) var(--ep-ease),
+    transform var(--ep-speed) var(--ep-ease);
+}
+
+#write .md-toc-content .md-toc-inner:hover {
+  transform: translateX(2px);
+}
+
 /* --------------------------------------------------------------------------
    段落与列表：回车间距节奏
    -------------------------------------------------------------------------- */
@@ -995,31 +1017,53 @@ blockquote > ol + p,
   color: var(--ep-text);
 }
 
-/* 删除线：弱化 */
+/* 删除线：与任务勾选后的文字同档弱化，文字与线同色 */
 #write del,
 #write s {
-  color: var(--ep-text-faint);
+  color: var(--ep-task-done-text);
+  text-decoration-color: var(--ep-task-done-text);
 }
 
-/* 链接：身份绿 + 悬停下划线从左向右展开 */
+/* 链接：身份绿加粗，外链在尾部挂一枚方向箭头；悬停时文字提亮，
+   箭头同步上移并满亮。内链与目录保持纯文字，不占下划线空间 */
 #write a {
-  position: relative;
-  display: inline;
-  padding-bottom: 3px;
   font-weight: 700;
   color: var(--ep-link);
   text-decoration: none;
-  background-image: linear-gradient(to right, rgb(119 145 79 / 90%) 100%, rgb(119 145 79 / 90%) 100%);
-  background-repeat: no-repeat;
-  background-position: right bottom;
-  background-size: 0% 2px;
-  transition: background-size 0.4s var(--ep-ease);
+  transition: color var(--ep-speed) var(--ep-ease);
 }
 
 #write a:hover {
-  color: var(--ep-link);
-  background-position: left bottom;
-  background-size: 100% 2px;
+  color: var(--ep-green-bright);
+}
+
+#write a[href^='http']:not(:has(img))::after,
+#write a[href^='//']:not(:has(img))::after,
+.md-hover-tip a[href^='http']:not(:has(img))::after,
+.md-hover-tip a[href^='//']:not(:has(img))::after {
+  --ep-icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3H3.8A1.8 1.8 0 0 0 2 4.8v7.4A1.8 1.8 0 0 0 3.8 14h7.4a1.8 1.8 0 0 0 1.8-1.8V9.5'/%3E%3Cpath d='M9.5 2H14v4.5'/%3E%3Cpath d='M14 2 7.5 8.5'/%3E%3C/svg%3E");
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.3em;
+  margin-right: 0.18em;
+  content: '';
+  background-color: currentColor;
+  -webkit-mask: var(--ep-icon-external) center / contain no-repeat;
+  mask: var(--ep-icon-external) center / contain no-repeat;
+  opacity: 0.68;
+  transform: translate(0, 0);
+  transition: opacity var(--ep-speed) var(--ep-ease),
+    transform var(--ep-speed) var(--ep-ease);
+  vertical-align: 0.08em;
+}
+
+#write a[href^='http']:not(:has(img)):hover::after,
+#write a[href^='//']:not(:has(img)):hover::after,
+.md-hover-tip a[href^='http']:not(:has(img)):hover::after,
+.md-hover-tip a[href^='//']:not(:has(img)):hover::after {
+  opacity: 1;
+  transform: translate(0.12em, -0.12em);
 }
 
 /* 行内代码：深泡沫青字 + 13% 淡底小圆角块 + 泡沫青细线描边；
@@ -1043,20 +1087,46 @@ blockquote > ol + p,
   border-radius: 7px;
 }
 
-/* kbd 键帽 */
+/* kbd 键帽：中线对齐加光学上提；键的厚度由底缘 2px 侧壁加贴地
+   柔影表达（经典键帽配方的主题化取色），悬停下潜 1px 侧壁收薄，
+   按住压平沉入 2px，底色加深一档 */
 #write kbd {
+  display: inline-block;
   padding: 2px 6px;
   font-family: var(--ep-font-code);
   font-size: 0.85em;
+  line-height: 1.45;
+  vertical-align: middle;
+  position: relative;
+  top: -0.05em;
   color: var(--ep-text);
   background: rgb(44 56 48 / 8%);
   border: 1px solid var(--ep-line-2);
-  border-bottom-width: 2px;
-  border-bottom-color: var(--ep-line-3);
   border-radius: var(--ep-radius-chip);
+  box-shadow: 0 2px 0 rgb(44 56 48 / 22%),
+    0 3px 5px rgb(40 50 44 / 10%);
+  transition: transform 120ms var(--ep-ease),
+    box-shadow 120ms var(--ep-ease),
+    background-color 120ms var(--ep-ease);
 }
 
-/* mark 高亮：暖黄底深墨绿字 + 极轻阴影 */
+/* 悬停：顶面下潜 1px，侧壁收薄一半 */
+#write kbd:hover {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgb(44 56 48 / 22%),
+    0 2px 4px rgb(40 50 44 / 8%);
+}
+
+/* 按住：压平沉入，侧壁归零，底色加深一档 */
+#write kbd:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgb(44 56 48 / 22%),
+    0 1px 3px rgb(40 50 44 / 8%);
+  background: rgb(44 56 48 / 12%);
+}
+
+/* mark 高亮：暖黄底深墨绿字 + 暖色染影双层，
+   投影带黄底同源的暖调，浮起而不显灰脏 */
 #write mark {
   padding: 1px 4px;
   /* 左右各加 1px margin，与行内代码同款，高亮块不贴邻字 */
@@ -1065,21 +1135,44 @@ blockquote > ol + p,
   color: #3f3312 !important;
   background: #ecd494 !important;
   border-radius: var(--ep-radius-tip) !important;
-  box-shadow: 0 2px 6px rgb(40 50 44 / 6%) !important;
+  box-shadow: 0 1px 2px rgb(176 145 61 / 14%),
+    0 4px 10px -2px rgb(176 145 61 / 16%) !important;
 }
 
-/* 角标脚注：身份绿系 */
+/* 角标脚注：身份绿系，悬停转亮绿提示可查 */
 sup.md-footnote {
   color: var(--ep-link);
   background: transparent;
+  transition: color var(--ep-speed) var(--ep-ease);
 }
 
+sup.md-footnote:hover {
+  color: var(--ep-green-bright);
+}
+
+/* 脚注区：Typora 逐条渲染 .footnotes，分节线只画在首条上缘，
+   与正文分隔线同款两端渐隐；后续条目无线，条目间留呼吸位 */
 .footnotes {
   margin-top: 2rem;
   padding-top: 1rem;
   font-size: 0.9rem;
   color: var(--ep-text-secondary);
-  border-top: 1px solid var(--ep-line-3);
+  border-top: 0;
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    rgb(94 109 99 / 38%),
+    transparent
+  );
+  background-size: 100% 1px;
+  background-position: top;
+  background-repeat: no-repeat;
+}
+
+.footnotes + .footnotes {
+  margin-top: 0.45em;
+  padding-top: 0;
+  background-image: none;
 }
 
 .footnotes a {
@@ -1294,8 +1387,8 @@ blockquote {
   border-spacing: 0;
   background-color: var(--ep-bg-raised);
   border: 1px solid var(--ep-line-2);
-  border-radius: var(--ep-radius-block);
-  box-shadow: var(--ep-shadow-pop);
+  border-radius: var(--ep-radius-table);
+  box-shadow: var(--ep-shadow-embed);
 }
 
 #write table:not(.md-grid-board) th {
@@ -1327,19 +1420,19 @@ blockquote {
 }
 
 #write table:not(.md-grid-board) tr:first-child th:first-child {
-  border-top-left-radius: var(--ep-radius-block);
+  border-top-left-radius: var(--ep-radius-table);
 }
 
 #write table:not(.md-grid-board) tr:first-child th:last-child {
-  border-top-right-radius: var(--ep-radius-block);
+  border-top-right-radius: var(--ep-radius-table);
 }
 
 #write table:not(.md-grid-board) tr:last-child td:first-child {
-  border-bottom-left-radius: var(--ep-radius-block);
+  border-bottom-left-radius: var(--ep-radius-table);
 }
 
 #write table:not(.md-grid-board) tr:last-child td:last-child {
-  border-bottom-right-radius: var(--ep-radius-block);
+  border-bottom-right-radius: var(--ep-radius-table);
 }
 
 #write table:not(.md-grid-board) tbody tr {
@@ -1366,9 +1459,9 @@ blockquote {
   background: rgb(252 254 251 / 94%);
   border: 1px solid var(--ep-line-2);
   border-radius: 10px;
-  box-shadow: 0 10px 26px rgb(40 50 44 / 12%),
-    0 2px 6px rgb(40 50 44 / 9%),
-    0 6px 20px rgb(119 145 79 / 5%),
+  box-shadow: 0 1px 2px rgb(40 50 44 / 5%),
+    0 16px 34px -14px rgb(40 50 44 / 10%),
+    0 18px 36px -14px rgb(119 145 79 / 4%),
     inset 0 1px 0 rgb(255 255 255 / 60%);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -1543,7 +1636,7 @@ body:has(#write .ty-table-edit) #typora-table-row-tracker {
 }
 
 /* --------------------------------------------------------------------------
-   图片：深绿细线边框 + 中等投影（六类中唯一用 14% 描边的块）
+   图片：深绿细线边框 + 轻档渐扩投影（六类中唯一用 12% 描边的块）
    纯白 / 纯黑 / 同底色图均可识别；无悬停效果
    -------------------------------------------------------------------------- */
 
@@ -1563,6 +1656,68 @@ figure {
 
 #write .md-image > .md-meta {
   color: var(--ep-text-faint);
+}
+
+/* 图片路径输入控件：占位输入与选图按钮合成一枚内嵌输入条。raised
+   底与细描边接住正文卡的输入面层级，选图段压深一档区分可点区域，
+   占位文字取次要色，文件夹图标取主题绿，悬停与键盘焦点用绿色微光；
+   整体上移 2px 作光学居中 */
+#write .md-image-src-span:has(.md-image-btn) {
+  display: inline-flex;
+  align-items: stretch;
+  margin: 0 4px;
+  overflow: hidden;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+  background: var(--ep-bg-raised);
+  border: 1px solid var(--ep-line-3);
+  border-radius: var(--ep-radius-chip);
+  box-shadow: 0 1px 2px rgb(40 50 44 / 6%);
+}
+
+#write .md-image .md-image-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  line-height: 3ex;
+  background: transparent;
+  border-radius: 0;
+}
+
+#write .md-image .md-image-input-src-btn:before {
+  color: var(--ep-text-secondary);
+  font-size: 12px;
+  font-family: var(--ep-font-ui);
+}
+
+#write .md-image .md-image-pick-file-btn {
+  padding: 0 8px;
+  background: var(--ep-bg-code);
+  border-left: 1px solid var(--ep-line-2);
+}
+
+#write .md-image .md-image-pick-file-btn:before {
+  padding-left: 0;
+  color: var(--ep-green);
+}
+
+#write .md-image .md-image-btn:hover,
+#write .md-image .md-image-btn.selected {
+  background: var(--ep-hover-green);
+}
+
+#write .md-image .md-image-pick-file-btn:hover {
+  background: var(--ep-hover-green-strong);
+}
+
+#write .md-image .md-image-pick-file-btn:hover:before {
+  color: var(--ep-green-bright);
+}
+
+#write .md-image .md-image-btn:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgb(119 145 79 / 23%);
 }
 
 /* --------------------------------------------------------------------------
@@ -1611,7 +1766,7 @@ figure {
   background-color: var(--ep-bg-code);
   border: 1px solid var(--ep-line-2);
   border-radius: var(--ep-radius-code);
-  box-shadow: var(--ep-shadow-pop);
+  box-shadow: var(--ep-shadow-embed);
 }
 
 /* 代码语言选择浮层：原生容器没有底色与描边，悬浮在正文上
@@ -1711,7 +1866,7 @@ figure {
 #write .md-fences:focus-within,
 #write .md-fences .CodeMirror {
   background-color: var(--ep-bg-code) !important;
-  box-shadow: var(--ep-shadow-pop) !important;
+  box-shadow: var(--ep-shadow-embed) !important;
 }
 
 /* CodeMirror 内部：清除任何 inset 阴影与高光残留 */
@@ -1722,17 +1877,19 @@ figure {
   text-shadow: none !important;
 }
 
-/* 语言输入浮层：挂在代码块下方 8px；点击代码块后淡入，
-   悬停浮层自身全亮；无入场动画与内部描边（避免点击闪烁） */
+/* 语言输入浮层：挂在代码块下方 8px，底色与代码面板同源，归读为
+   代码块的从属标签；常态半透明淡出、悬停全亮、聚焦换主题绿焦点
+   环；投影为 embed 迷你档两层包裹影；无入场动画与内部描边 */
 .md-fences .code-tooltip {
   top: calc(100% + 8px) !important;
   bottom: auto !important;
   right: 4px !important;
   color: #2f3933;
-  background: var(--ep-bg-raised) !important;
+  background: var(--ep-bg-code) !important;
   border: 1px solid var(--ep-line-2);
   border-radius: var(--ep-radius-tip);
-  box-shadow: 0 4px 12px rgb(40 50 44 / 16%);
+  box-shadow: 0 1px 4px rgb(40 50 44 / 5%),
+    0 2px 10px rgb(40 50 44 / 4%);
   padding: 2px 8px;
   opacity: 0.35;
   transition: opacity var(--ep-speed) var(--ep-ease);
@@ -1753,13 +1910,137 @@ figure {
   animation: none !important;
 }
 
-/* 聚焦/点击态保留与悬停相同的边框和投影，只去掉输入框自身描边 */
+/* 聚焦/点击态：最小化处理，底色不变、描边换主题绿、一圈淡绿
+   光晕，小尺寸元素靠克制保质感；只去掉输入框自身描边 */
 .md-fences .code-tooltip:focus,
 .md-fences .code-tooltip:focus-within {
-  border: 1px solid var(--ep-line-2) !important;
+  border: 1px solid rgb(84 102 56 / 32%) !important;
   outline: none !important;
-  box-shadow: 0 4px 12px rgb(40 50 44 / 16%) !important;
+  box-shadow: 0 2px 8px rgb(84 102 56 / 14%) !important;
   animation: none !important;
+}
+
+/* mermaid 图表与数学公式块：两者共用同一套注入面板与腾位机制
+   （公式栅栏同样挂 md-fences-advanced 类），预览面板由 JS 从模
+   板克隆注入，骨架样式自带黑描边直角，这里统一压成主题浮面
+   （raised 底、一线描边、代码圆角、embed 影）。布局弃用原生机
+   制：原生在编辑态把面板转为绝对定位、再往代码块写「面板高加
+   50px」行内腾位，而面板高度在图表定稿前后仍在变化，腾位随之
+   漂移；改为编辑态让代码块外壳透明、卡片壳移到编辑器自身，面
+   板回归常规流、贴在卡片下方，腾位由布局自身保证，行内腾位与
+   段距统一被 2rem 覆盖（盖过所有下接块的顶距，标题最大 2rem
+   同被吸收），点击前后图与下方内容的距离在任何字号下一致 */
+#write .md-diagram-panel {
+  position: static !important;
+  background: var(--ep-bg-raised) !important;
+  border: 1px solid var(--ep-line-2) !important;
+  border-radius: var(--ep-radius-code) !important;
+  box-shadow: var(--ep-shadow-embed) !important;
+  padding: 8px 12px !important;
+  margin-top: 0 !important;
+}
+
+/* 骨架给预览容器留的顶部内边距与面板自身 padding 叠加会偏
+   上厚下薄，归零后由面板 padding 统一控制图与面板边的距离 */
+#write .md-diagram-panel-preview {
+  padding-top: 0 !important;
+}
+
+/* 数学公式的预览容器自带 1em 四向内边距、公式外距另有 4px，
+   与流程图的图边距离不一致；归零后公式与面板边的距离同样由
+   面板 padding 统一控制 */
+#write .md-diagram-panel .md-mathjax-preview {
+  padding: 0 !important;
+}
+
+#write .md-diagram-panel mjx-container[display="true"] {
+  margin: 0 !important;
+}
+
+#write pre.md-fences.md-focus .md-diagram-panel {
+  margin-top: 8px !important;
+}
+
+/* 编辑态：代码块外壳转透明，卡片壳移到编辑器自身，语言标签
+   仍定位在外壳左上（与编辑器卡片顶边重合） */
+#write pre.md-fences-advanced.md-focus,
+#write pre.md-fences-advanced:focus-within {
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 2rem !important;
+}
+
+#write pre.md-fences-advanced.md-focus .CodeMirror,
+#write pre.md-fences-advanced:focus-within .CodeMirror {
+  background-color: var(--ep-bg-code) !important;
+  border: 1px solid var(--ep-line-2) !important;
+  border-radius: var(--ep-radius-code) !important;
+  box-shadow: var(--ep-shadow-embed) !important;
+  padding: 40px 16px 16px !important;
+}
+
+/* 阅读态：预览块本身就是唯一外壳，与编辑态共用 2rem 段距 */
+#write pre.md-fences-advanced:not(.md-focus) {
+  margin-bottom: 2rem !important;
+}
+
+#write .md-diagram-panel svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* 数学公式块：与图表栅栏不同源的 rawblock 机制，阅读态是「公
+   式容器」，编辑态整体换成「Math 工具条加 $$ 定界符加源码编
+   辑器加实时预览」面板，同样压进主题卡片方言：阅读态公式坐
+   raised 浮面卡；编辑态整块编辑面板是代码卡，实时预览为卡内
+   下缘的 raised 嵌面；块级段距统一 2rem，与图表块同一节奏，
+   公式外距归零，公式与卡边距离由卡 padding 控制 */
+#write .md-math-block {
+  margin: 0 0 2rem;
+}
+
+#write .md-math-block .md-rawblock-container {
+  background: var(--ep-bg-raised);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-code);
+  box-shadow: var(--ep-shadow-embed);
+  padding: 8px 12px;
+}
+
+#write .md-math-block mjx-container[display="true"] {
+  margin: 0;
+}
+
+#write .md-math-block .md-mathblock-panel {
+  background: var(--ep-bg-code);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-code);
+  box-shadow: var(--ep-shadow-embed);
+  padding: 8px 16px;
+}
+
+/* $$ 定界符与源码编辑区直接吃代码卡底色，覆盖骨架的灰面板底 */
+#write .md-math-block .md-rawblock-before,
+#write .md-math-block .md-rawblock-after,
+#write .md-math-block .md-rawblock-input {
+  background: transparent;
+}
+
+#write .md-math-block .CodeMirror {
+  font-family: var(--ep-font-code);
+  font-size: 0.95rem;
+}
+
+/* 实时预览：代码卡内下缘的 raised 嵌面，内边距对齐公式卡 */
+#write .md-math-block .md-mathjax-preview {
+  background: var(--ep-bg-raised);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-block);
+  box-shadow: var(--ep-shadow-embed);
+  padding: 8px 12px;
+  margin-top: 8px;
 }
 
 .code-tooltip .ty-input,
@@ -1777,23 +2058,248 @@ figure {
 }
 
 /* --------------------------------------------------------------------------
-   代码块语言 hover 提示浮层（链接悬停的 code-tooltip 形态）
+   悬停浮层卡：行内公式预览与脚注预览共用单元素卡片，
+   code-tooltip.md-hover-tip 直接挂在 body 下、无外层包装，
+   选择器落在卡片本体；笺纸底 + 描边圆角 + 浮影，
+   卡内链接与公式用主题色；两卡统一淡入上浮入场
    -------------------------------------------------------------------------- */
 
-.md-hover-tip .code-tooltip.md-hover-tip {
-  background: var(--ep-bg-popover) !important;
+.code-tooltip.md-hover-tip {
+  color: var(--ep-text);
+  background: var(--ep-bg-tip) !important;
   border: 1px solid var(--ep-line-2);
   border-radius: var(--ep-radius-chip);
   box-shadow: var(--ep-shadow-float);
-  animation: none;
+  animation: ep-tip-in var(--ep-speed) var(--ep-ease);
+}
+
+@keyframes ep-tip-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .md-hover-tip .code-tooltip-content {
-  background: var(--ep-bg-popover);
+  background: var(--ep-bg-tip);
+}
+
+.md-hover-tip a {
+  color: var(--ep-link);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.md-hover-tip a:hover {
+  color: var(--ep-green-bright);
+}
+
+.md-hover-tip .mjx-svg-href {
+  fill: var(--ep-green-bright) !important;
+  stroke: var(--ep-green-bright) !important;
+}
+
+.md-hover-tip .md-arrow {
+  opacity: 1;
 }
 
 .md-hover-tip .md-arrow::after {
-  background: var(--ep-bg-popover);
+  background: var(--ep-bg-tip);
+  border-left: 1px solid var(--ep-line-2);
+  border-top: 1px solid var(--ep-line-2);
+  box-shadow: none;
+}
+
+/* 脚注预览卡：纸笺形态。定位脚本每次移动都会重写卡体内
+   联 top 并抵消静态位移，故卡体只作定位框，框顶留 8px
+   呼吸隙并填正文卡底色，无形遮住下层文字；纸面、发丝描
+   边、pop 双层浮影与绿色环境晕全部由内容层承载；320px
+   硬顶覆盖定位脚本写入的内联宽限，长脚注先换行再撑宽；
+   0.9em 批注级字号配 1.7 行距；指针离开角标或卡片后
+   0.25s 淡出下沉，替代 Typora 的延时瞬间消失 */
+.md-f-tooltip.code-tooltip {
+  max-width: 320px !important;
+  background: var(--ep-bg-card) !important;
+  border: none;
+  box-shadow: none;
+  padding-top: 8px;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.25s var(--ep-ease), transform 0.25s var(--ep-ease);
+}
+
+/* 指针悬于角标或卡上时完全呈现，回显走 0.15s 快速档 */
+body:has(#write sup.md-footnote:hover) .md-f-tooltip.code-tooltip,
+.md-f-tooltip.code-tooltip:hover {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--ep-speed) var(--ep-ease),
+    transform var(--ep-speed) var(--ep-ease);
+}
+
+/* 纸面与光影落在内容层；菱形指针随呼吸隙下移，钉在纸面
+   顶缘 */
+.md-f-tooltip .code-tooltip-content {
+  background: var(--ep-bg-tip);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-block);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%),
+    var(--ep-shadow-pop),
+    0 16px 40px -12px rgb(84 102 56 / 8%);
+  padding: 10px 16px 12px;
+  font-size: 0.9em;
+  white-space: normal;
+  opacity: 1;
+  margin-top: 0;
+  height: auto;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.md-f-tooltip .md-arrow {
+  top: 3px;
+}
+
+/* 卡内富文本与正文同规范：加粗暖黄、代码、斜体、删除线、
+   键帽、mark 高亮全部同款 */
+.md-f-tooltip .code-tooltip-content strong {
+  font-weight: bold;
+  color: var(--ep-yellow);
+}
+
+.md-f-tooltip .code-tooltip-content code {
+  padding: 2px 5px 0;
+  margin: 0 1px;
+  font-family: var(--ep-font-code);
+  font-size: 0.95em;
+  color: var(--ep-foam-bright);
+  background-color: rgb(41 115 131 / 13%);
+  border: 1px solid rgb(41 115 131 / 20%);
+  border-radius: 7px;
+}
+
+.md-f-tooltip .code-tooltip-content em {
+  font-style: italic;
+  color: var(--ep-text);
+}
+
+.md-f-tooltip .code-tooltip-content del {
+  color: var(--ep-task-done-text);
+  text-decoration: line-through;
+  text-decoration-color: var(--ep-task-done-text);
+}
+
+.md-f-tooltip .code-tooltip-content mark {
+  padding: 1px 4px;
+  margin: 0 1px;
+  font-weight: normal;
+  color: #3f3312 !important;
+  background: #ecd494 !important;
+  border-radius: var(--ep-radius-tip) !important;
+  box-shadow: 0 1px 2px rgb(176 145 61 / 14%),
+    0 4px 10px -2px rgb(176 145 61 / 16%) !important;
+}
+
+.md-f-tooltip .code-tooltip-content kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: var(--ep-font-code);
+  font-size: 0.85em;
+  line-height: 1.45;
+  vertical-align: middle;
+  position: relative;
+  top: -0.05em;
+  color: var(--ep-text);
+  background: rgb(44 56 48 / 8%);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-chip);
+  box-shadow: 0 2px 0 rgb(44 56 48 / 22%),
+    0 3px 5px rgb(40 50 44 / 10%);
+}
+
+.md-f-tooltip .code-tooltip-content kbd:hover {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgb(44 56 48 / 22%),
+    0 2px 4px rgb(40 50 44 / 8%);
+}
+
+.md-f-tooltip .code-tooltip-content kbd:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgb(44 56 48 / 22%),
+    0 1px 3px rgb(40 50 44 / 8%);
+  background: rgb(44 56 48 / 12%);
+}
+
+/* --------------------------------------------------------------------------
+   块工具行：表格、图片等块选中时悬浮的操作条与更多菜单，
+   与悬停笺纸同族；按钮悬停绿色微光，选中档加深
+   -------------------------------------------------------------------------- */
+
+.ty-editor-toolbar {
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-block);
+  background-color: var(--ep-bg-tip);
+  color: var(--ep-text);
+  /* 表格/图片块工具行：与表格悬浮工具条同款两段式柔影，
+     近段接触、远段大模糊负扩散，不出现平行硬边 */
+  box-shadow: 0 1px 2px rgb(40 50 44 / 6%),
+    0 12px 28px -8px rgb(40 50 44 / 12%);
+  filter: none;
+}
+
+.ty-editor-toolbar-btn {
+  color: var(--ep-text-secondary);
+  opacity: 1;
+  border-radius: var(--ep-radius-chip);
+  transition: color var(--ep-speed) var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease);
+}
+
+.ty-editor-toolbar-btn.hover,
+.ty-editor-toolbar-btn:hover {
+  color: var(--ep-green-bright);
+  background-color: var(--ep-hover-green);
+}
+
+.ty-editor-toolbar-btn.active {
+  color: var(--ep-green-bright);
+  background-color: var(--ep-active-green);
+}
+
+.ty-editor-toolbar-divider {
+  background: var(--ep-line-2);
+}
+
+.ty-editor-toolbar-menu {
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-block);
+  background-color: var(--ep-bg-tip);
+  color: var(--ep-text);
+  /* 更多菜单随工具行同款两段式柔影 */
+  box-shadow: 0 1px 2px rgb(40 50 44 / 6%),
+    0 12px 28px -8px rgb(40 50 44 / 12%);
+  filter: none;
+}
+
+.ty-editor-toolbar-menu-item:hover {
+  background-color: var(--ep-hover-green);
+}
+
+.ty-editor-toolbar-menu-divider {
+  background: var(--ep-line-1);
+}
+
+.ty-editor-toolbar-tooltip {
+  color: var(--ep-text-secondary);
+  background: var(--ep-bg-tip);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-chip);
+  box-shadow: var(--ep-shadow-block);
 }
 
 /* CodeMirror（代码块 .cm-s-inner） */
@@ -1801,6 +2307,11 @@ figure {
 .CodeMirror div.CodeMirror-cursor,
 .cm-s-inner .CodeMirror-cursor {
   border-left: solid thin var(--ep-green-bright) !important;
+}
+
+/* 源代码模式光标：原生为 3px 品红竖线，统一为主题绿 */
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+  border-left: 2px solid var(--ep-green-bright) !important;
 }
 
 .cm-s-inner .CodeMirror-gutters {
@@ -1811,6 +2322,19 @@ figure {
 
 .cm-s-inner .CodeMirror-linenumber {
   color: var(--ep-text-faint);
+}
+
+/* 行号恒按两位预留宽度：不足十行时与两位数落在同一列，跨过第十
+   行时不再横向跳动；三位及以上按内容继续增宽 */
+.cm-s-inner .CodeMirror-linenumbers {
+  min-width: calc(2ch + 11px);
+}
+
+.cm-s-inner .CodeMirror-linenumber {
+  box-sizing: border-box;
+  min-width: calc(2ch + 5px);
+  padding: 0 3px 0 0;
+  text-align: right;
 }
 
 .cm-s-inner.CodeMirror-focused div.CodeMirror-selected,
@@ -1972,6 +2496,21 @@ figure {
 }
 
 .typora-sourceview-on #toggle-sourceview-btn {
+  background: transparent;
+}
+
+/* 源代码模式：原生 #typora-source 为 fixed 全屏层，底色承袭正文卡，
+   整层盖掉卡片圆角与四周窗缝；改为透空，CodeMirror 与行号槽同步
+   透底，源码态完整呈现正文卡框 */
+.typora-sourceview-on #typora-source {
+  background: transparent;
+}
+
+.typora-sourceview-on #typora-source .CodeMirror {
+  background: transparent;
+}
+
+.typora-sourceview-on #typora-source .CodeMirror-gutters {
   background: transparent;
 }
 
@@ -2173,6 +2712,48 @@ input[type='checkbox']:checked::after {
   animation: toggleOnCheckbox 0.2s ease forwards;
 }
 
+/* 完成态任务：删除线从零厚度展开，随后文字与勾选框同步转灰；
+   两项变化按 0.04、0.18 秒错峰衔接 */
+#write .md-task-list-item {
+  text-decoration: line-through;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0px;
+  text-decoration-skip-ink: none;
+  transition: text-decoration-color 0.32s var(--ep-ease) 0.04s,
+    text-decoration-thickness 0.32s var(--ep-ease) 0.04s,
+    color 0.4s var(--ep-ease) 0.18s;
+}
+
+#write .md-task-list-item p {
+  transition: color 0.4s var(--ep-ease) 0.18s;
+}
+
+#write .md-task-list-item.task-list-done,
+#write .md-task-list-item.task-list-done p {
+  color: var(--ep-task-done-text);
+}
+
+#write .md-task-list-item.task-list-done {
+  text-decoration-color: var(--ep-task-done-text);
+  text-decoration-thickness: 1px;
+}
+
+#write .md-task-list-item input[type='checkbox']::before {
+  transition: border-color 0.4s var(--ep-ease) 0.18s;
+}
+
+#write .md-task-list-item input[type='checkbox']::after {
+  transition: box-shadow 0.4s var(--ep-ease) 0.18s;
+}
+
+#write .md-task-list-item.task-list-done input[type='checkbox']::before {
+  border-color: var(--ep-task-done-ink);
+}
+
+#write .md-task-list-item.task-list-done input[type='checkbox']::after {
+  box-shadow: 4px 4px 0 0 var(--ep-task-done-ink);
+}
+
 input[type='radio']::before {
   border-radius: 100vh;
 }
@@ -2233,10 +2814,11 @@ input[type='radio']:checked::after {
   border-radius: var(--ep-radius-card);
   /* 原生 window.css 在 #typora-sidebar 上写死 box-shadow:none，
      主题规则必须 !important 才能显示。浮卡低档：细描边勾边，
-     两层投影弱于正文卡的五层分层，表达低半层；层级由底色阶梯
-     与投影分档表达（画布 #e4e9df < 目录 #f2f5ee < 正文 #f8faf5） */
+     两层负扩散投影弱于正文卡的分层，主体落在卡下，不侵入两侧
+     窗缝；层级由底色阶梯与投影分档表达（画布 #e4e9df <
+     目录 #f2f5ee < 正文 #f8faf5） */
   box-shadow: 0 0 0 1px rgb(44 56 48 / 6%),
-    0 1px 2px rgb(40 50 44 / 6%), 0 8px 16px rgb(40 50 44 / 5%) !important;
+    0 2px 4px -2px rgb(40 50 44 / 6%), 0 8px 18px -8px rgb(40 50 44 / 5%) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -2260,8 +2842,9 @@ input[type='radio']:checked::after {
 /* 色条：与两卡同高、上下齐边的圆角竖条，平时隐形，悬停缝隙淡入亮起 */
 #typora-sidebar-resizer .typora-sidebar-resizer-bar {
   position: absolute;
-  top: 8px;
-  bottom: 8px;
+  top: calc(var(--ep-top-baseline) + var(--ep-radius-card));
+  bottom: calc(8px + var(--ep-radius-card));
+  height: auto;
   left: 50%;
   width: 3px;
   transform: translateX(-50%);
@@ -2273,6 +2856,15 @@ input[type='radio']:checked::after {
 }
 
 /* 原生对色条本体悬停写死蓝色加宽，同级选择器在加载顺序上盖回 */
+/* 经典模式正文卡顶再下移 8px，色条顶端随正文卡顶 */
+body.native-window:not(:has(#plugin-window-tab:not(.plugin-common-hidden))) #typora-sidebar-resizer .typora-sidebar-resizer-bar {
+  top: calc(var(--ep-top-baseline) + 8px + var(--ep-radius-card));
+}
+
+/* 页签栏可见时正文卡顶再下移 40px，色条顶端随正文卡顶 */
+body:has(#plugin-window-tab:not(.plugin-common-hidden)) #typora-sidebar-resizer .typora-sidebar-resizer-bar {
+  top: calc(var(--ep-top-baseline) + 40px + 8px + var(--ep-radius-card));
+}
 #typora-sidebar-resizer:not(.dragging) .typora-sidebar-resizer-bar:hover {
   width: 3px;
   background-color: var(--ep-green);
@@ -2555,6 +3147,9 @@ input[type='radio']:checked::after {
   width: 100%;
   height: 30px;
   padding-top: 0 !important;
+  /* 原生 overflow-x:hidden 会把纵向溢出交给自动滚动条，
+     行内高度一旦不齐就冒出一条竖条，这里直接锁死纵向 */
+  overflow-y: hidden;
 }
 
 #sidebar-footer-main-item-label {
@@ -2589,6 +3184,22 @@ input[type='radio']:checked::after {
   justify-content: center;
   height: 30px;
   padding-top: 0 !important;
+}
+
+/* 列表/树形切换图标：字形基线比同行 ⋮ 高半像素档，
+   字形盒内抬高 1px 回落，与同行图标处于同一水平线 */
+#switch-file-list-btn .ty-icon {
+  position: relative;
+  top: 2px;
+  line-height: 1;
+}
+
+/* 切换键只保留当前视图对应的那一枚图标：
+   树形态显示列表图标、列表态显示树形图标，另一枚彻底不渲染，
+   避免两只字形在按钮内叠出多余竖线 */
+.use-file-tree-style .switch-file-list-btn-to-tree,
+.use-file-list-style .switch-file-list-btn-to-list {
+  display: none !important;
 }
 
 /* 侧栏工具行内层拉满整行宽度：新建在左、⋮ 与切换在右、themes 居中 */
@@ -2830,7 +3441,10 @@ input[type='radio']:checked::after {
    归零、卡片自然收成单行，不留空隙；
    悬停 10%、当前行 20%、悬停当前行 26% 沿用树形梯子，
    当前行另加左侧 3px 绿条（铺满内容块，随行数自适应）；
-   载入行与空态不带 file-library-file-node，网格不命中不受影响 */
+   载入行与空态不带 file-library-file-node，网格不命中不受影响；
+   原生文件分隔线撤掉，行距全由外边距承担：上下 8px 相邻折叠、
+   左右各 4px 相加，卡面四周得到统一 8px 白场；行的层级改由
+   悬停与选中底色、左侧绿条表达 */
 #file-library .file-list-item.file-library-file-node {
   position: relative;
   display: grid;
@@ -2840,7 +3454,8 @@ input[type='radio']:checked::after {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
   column-gap: 16px;
-  margin: 2px 4px;
+  margin: 8px 4px;
+  border-bottom: 0;
   padding: 9px 12px 9px 15px;
   border-radius: 8px;
   font-family: var(--ep-font-ui);
@@ -3160,15 +3775,56 @@ input[type='radio']:checked::after {
 }
 
 .sidebar-footer .sidebar-footer-item {
+  position: relative;
+  z-index: 0;
   border-radius: var(--ep-radius-tip);
-  transition: background-color var(--ep-speed) var(--ep-ease),
-    color var(--ep-speed) var(--ep-ease),
+  transition: color var(--ep-speed) var(--ep-ease),
     opacity var(--ep-speed) var(--ep-ease),
     transform var(--ep-speed) var(--ep-ease-out);
 }
 
 .sidebar-footer .sidebar-footer-item:active {
   transform: scale(0.98);
+}
+
+/* 悬停底色画成按钮内部 26px 的薄片，按钮盒仍走原生 30px 几何：
+   图标与正文卡页脚行保持同一水平线，薄片上下各留 2px 不贴卡底；
+   两端键的薄片外缘再内收 2px，悬停时外下角 14px 与卡角同心 */
+.sidebar-footer .sidebar-footer-item::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 0;
+  bottom: 2px;
+  left: 0;
+  z-index: -1;
+  border-radius: var(--ep-radius-tip);
+  background-color: transparent;
+  pointer-events: none;
+  transition: background-color var(--ep-speed) var(--ep-ease);
+}
+
+#sidebar-new-file-btn::before {
+  left: 2px;
+}
+
+#switch-file-list-btn::before {
+  right: 2px;
+}
+
+#sidebar-new-file-btn:hover::before,
+#sidebar-new-file-btn:active::before {
+  border-bottom-left-radius: 14px;
+}
+
+#switch-file-list-btn:hover::before,
+#switch-file-list-btn:active::before {
+  border-bottom-right-radius: 14px;
+}
+
+.sidebar-footer .sidebar-footer-item:hover::before,
+.sidebar-footer .sidebar-footer-item:active::before {
+  background-color: var(--ep-hover-green-strong);
 }
 
 /* 工具行幽灵态作用域放宽到侧栏全局：原生只有一份
@@ -3196,14 +3852,13 @@ input[type='radio']:checked::after {
   opacity: 1 !important;
 }
 
-/* 悬停按钮：主题绿高亮（含新建） */
+/* 悬停按钮：主题绿高亮（含新建），底色由按钮内薄片承担 */
 .sidebar-footer .sidebar-footer-item:hover,
 #sidebar-new-file-btn:hover,
 #switch-file-list-btn:hover,
 #sidebar-menu-btn:hover {
   color: var(--ep-green-bright) !important;
-  background-color: var(--ep-hover-green-strong) !important;
-  border-radius: var(--ep-radius-tip);
+  background-color: transparent !important;
 }
 
 /* 新建键常驻亮度对齐工具行悬停时其它按钮的档位
@@ -3607,9 +4262,21 @@ footer.ty-footer #outline-btn:hover {
   color: var(--ep-green-bright) !important;
 }
 
-/* 悬停规则写四角简写会覆盖掉常驻大圆角，这里单独补回外下角 */
+/* 悬停规则写四角简写会覆盖掉常驻大圆角，这里单独补回外下角：
+   字数统计在页脚右端补右下角；源代码模式里退出按钮展开为文字
+   胶囊、占据页脚左端，才补左下角，常态图标钮保持小圆角 */
 body #footer-word-count:hover {
   border-bottom-right-radius: 14px;
+}
+
+.typora-sourceview-on footer.ty-footer #toggle-sourceview-btn:hover {
+  border-bottom-left-radius: 14px;
+}
+
+/* 原生在源码态给退出按钮写 margin-left:-2px，悬停底色顶出卡缘；
+   归零后悬停胶囊左缘回到卡内，与 14px 圆角同心贴合 */
+.typora-sourceview-on footer.ty-footer #toggle-sourceview-btn {
+  margin-left: 0;
 }
 
 footer.ty-footer .footer-item:active {
@@ -4049,8 +4716,8 @@ footer.ty-footer .footer-item:active {
   width: 250px !important;
   border-radius: 0 16px 16px 0 !important;
   box-shadow: inset -1px 0 0 rgb(44 56 48 / 8%),
-    12px 0 34px rgb(40 50 44 / 14%),
-    0 0 28px rgb(119 145 79 / 7%) !important;
+    10px 0 26px rgb(40 50 44 / 9%),
+    0 0 24px rgb(119 145 79 / 4%) !important;
 }
 
 /* 一体化菜单页：菜单打开时标题栏让出指针命中，
@@ -4393,46 +5060,160 @@ footer.ty-footer .footer-item:active {
   transition: opacity 180ms var(--ep-ease);
 }
 
+/* 容器沿原生行盒顶起，8px 补偿让方钮与查找框顶底齐平 */
 #recent-file-panel-action-btn-container {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
+/* 最近文件「更多」图标钮：与查找框等高的方形安静钮。
+   常态无底、次级色圆点；悬停中性淡底，按压微缩下沉，
+   菜单展开时按钮带 aria-expanded 常亮主题绿，作展开回执；
+   原生蓝色焦点环移除，键盘聚焦改绿光环 */
 #recent-file-panel-action-btn {
+  box-sizing: border-box;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ep-text-secondary);
   background: transparent;
+  border: none;
+  outline: none;
+  border-radius: var(--ep-radius-chip);
+  line-height: 1;
+  transform: none;
+  transition: color 160ms var(--ep-ease),
+    background-color 160ms var(--ep-ease),
+    box-shadow 160ms var(--ep-ease),
+    transform 160ms var(--ep-ease-out);
 }
 
-/* 菜单页右侧按钮：去原生 1px 灰边框线，
-   平时淡底常驻 + 悬停边框浮现 + 上移 1px 微动画 */
+#recent-file-panel-action-btn > i {
+  font-size: 16px;
+  line-height: 1;
+}
+
+#recent-file-panel-action-btn:hover {
+  color: var(--ep-text);
+  background-color: rgb(44 56 48 / 6%);
+  outline: none;
+  transform: none;
+}
+
+#recent-file-panel-action-btn:active {
+  background-color: rgb(44 56 48 / 10%);
+  outline: none;
+  transform: scale(0.94);
+}
+
+#recent-file-panel-action-btn[aria-expanded='true'] {
+  color: var(--ep-green-bright);
+  background-color: rgb(119 145 79 / 12%);
+  transform: none;
+}
+
+#recent-file-panel-action-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(119 145 79 / 23%);
+}
+
+/* 最近文件查找框：含边框的 34px 盒模型，与「更多」
+   方钮同高，顶底两缘齐平；聚焦绿描边加淡光环 */
+#recent-file-panel-search-input {
+  box-sizing: border-box;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-chip);
+  background: rgb(44 56 48 / 4%);
+  outline: none;
+  transition: border-color var(--ep-speed) var(--ep-ease),
+    background-color var(--ep-speed) var(--ep-ease),
+    box-shadow var(--ep-speed) var(--ep-ease);
+}
+
+#recent-file-panel-search-input:focus {
+  border-color: rgb(119 145 79 / 32%);
+  background: rgb(255 255 255 / 60%);
+  box-shadow: 0 0 0 2px rgb(119 145 79 / 12%);
+}
+
+/* 「更多」下拉：原生 margin-top 为负，菜单压住查找框；
+   改为按钮下方 8px 落下，右缘与按钮对齐，宽度容下条目文字。
+   条目悬停走中性淡底，按压加深一档，文字色全程不变 */
+#recent-file-panel-action-btn-container .dropdown-menu {
+  right: 0;
+  left: auto;
+  margin-top: 8px;
+  min-width: 176px;
+  padding: 4px;
+}
+
+#recent-file-panel-action-btn-container .dropdown-menu > li > a {
+  padding: 7px 12px;
+  border-radius: var(--ep-radius-chip);
+  color: #4d5c53 !important;
+  font-family: var(--ep-font-ui);
+  font-size: 13.5px;
+  line-height: 1.3;
+  transform: none;
+  transition: background-color 160ms var(--ep-ease),
+    color 160ms var(--ep-ease);
+}
+
+#recent-file-panel-action-btn-container .dropdown-menu > li > a:hover,
+#recent-file-panel-action-btn-container .dropdown-menu > li > a:focus {
+  color: #4d5c53 !important;
+  background-color: rgb(44 56 48 / 6%);
+  outline: none;
+}
+
+#recent-file-panel-action-btn-container .dropdown-menu > li > a:active {
+  color: #4d5c53 !important;
+  background-color: rgb(44 56 48 / 10%);
+}
+
+/* 菜单页右侧按钮：无边框纯淡底的安静次级钮。悬停中性
+   淡底加 1px 上浮与极浅落影，按压回落微缩，键盘聚焦换
+   绿光环；展开态（aria-expanded）才换绿，颜色不滥用 */
 .megamenu-content .btn,
 .megamenu-menu-panel .btn {
   color: #33403a;
-  background: rgb(44 56 48 / 8%);
-  border: 1px solid transparent;
+  background: rgb(44 56 48 / 5%);
+  border: none;
   border-radius: var(--ep-radius-chip);
-  transition: background-color var(--ep-speed) var(--ep-ease),
-    color var(--ep-speed) var(--ep-ease),
-    border-color var(--ep-speed) var(--ep-ease),
-    transform var(--ep-speed) var(--ep-ease-out);
+  transform: translateY(0);
+  transition: background-color 160ms var(--ep-ease),
+    color 160ms var(--ep-ease),
+    box-shadow 160ms var(--ep-ease),
+    transform 160ms var(--ep-ease-out);
 }
 
 .megamenu-content .btn:hover,
 .megamenu-menu-panel .btn:hover {
-  color: var(--ep-green-bright);
-  background-color: var(--ep-hover-green);
-  border-color: rgb(119 145 79 / 27%);
+  color: #22302a;
+  background-color: rgb(44 56 48 / 9%);
+  box-shadow: 0 4px 10px -6px rgb(40 50 44 / 22%);
   transform: translateY(-1px);
 }
 
 .megamenu-content .btn:active,
-.megamenu-menu-panel .btn:active,
-.megamenu-content .long-btn:active,
-.megamenu-menu-panel .long-btn:active {
-  transform: scale(0.98);
+.megamenu-menu-panel .btn:active {
+  background-color: rgb(44 56 48 / 12%);
+  box-shadow: none;
+  transform: translateY(0) scale(0.97);
 }
 
-/* 菜单页右侧长按钮（Open / 导入 / 导出）：次级按钮
-   深绿淡底 + 深绿细线边框 + 顶边内高光；图标 28px 微光方框；
-   悬停绿染底 + 绿 27% 边框 + 上移 1px */
+.megamenu-content .btn:focus-visible,
+.megamenu-menu-panel .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(119 145 79 / 23%);
+}
+
+/* 长按钮（打开 / 导入 / 导出）：悬停轻抬 1px 并投出绿意落影，
+   图标方框随之提亮一档；按压回落微缩，全程 160ms 缓出 */
 .megamenu-content .long-btn,
 .megamenu-menu-panel .long-btn {
   display: inline-flex;
@@ -4441,31 +5222,35 @@ footer.ty-footer .footer-item:active {
   font-family: var(--ep-font-body);
   font-size: 16px;
   color: #33403a;
-  background: rgb(44 56 48 / 9%);
-  border: 1px solid rgb(44 56 48 / 13%);
+  background: rgb(44 56 48 / 5%);
+  border: none;
   border-radius: var(--ep-radius-block);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%);
-  transition: background-color var(--ep-speed) var(--ep-ease),
-    border-color var(--ep-speed) var(--ep-ease),
-    color var(--ep-speed) var(--ep-ease),
-    box-shadow var(--ep-speed) var(--ep-ease),
-    transform var(--ep-speed) var(--ep-ease-out);
+  transform: translateY(0);
+  transition: background-color 160ms var(--ep-ease),
+    color 160ms var(--ep-ease),
+    box-shadow 160ms var(--ep-ease),
+    transform 160ms var(--ep-ease-out);
 }
 
 .megamenu-content .long-btn:hover,
 .megamenu-menu-panel .long-btn:hover {
-  color: var(--ep-green-bright) !important;
-  background-color: rgb(119 145 79 / 12%);
-  border-color: rgb(119 145 79 / 27%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 6px 16px rgb(119 145 79 / 7%);
+  color: #22302a;
+  background-color: rgb(44 56 48 / 8%);
+  box-shadow: 0 8px 18px -10px rgb(84 102 56 / 35%);
   transform: translateY(-1px);
 }
 
-/* 按压规则写在悬停规则后面，按下时盖过悬停的上浮 */
 .megamenu-content .long-btn:active,
 .megamenu-menu-panel .long-btn:active {
-  transform: scale(0.98);
+  background-color: rgb(44 56 48 / 11%);
+  box-shadow: none;
+  transform: translateY(0) scale(0.985);
+}
+
+.megamenu-content .long-btn:focus-visible,
+.megamenu-menu-panel .long-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(119 145 79 / 23%);
 }
 
 .megamenu-content .long-btn > span,
@@ -4577,37 +5362,48 @@ footer.ty-footer .footer-item:active {
   color: var(--ep-green);
 }
 
-/* 最近文件表格：无斑马行，行分隔用半透明深绿细线 */
+/* 最近文件列表：无斑马纹，发丝行线分隔，路径列次级色；
+   悬停整行绿淡底、首尾单元格圆角收边，按压加深一档，
+   状态只换底色不换字色 */
 #recent-file-panel tbody tr {
   background-color: transparent !important;
   border: none;
 }
 
-#recent-file-panel tbody tr:nth-child(2n-1) {
-  background-color: rgb(44 56 48 / 4%) !important;
+#recent-file-panel tbody tr:hover {
+  background-color: transparent !important;
 }
 
 #recent-file-panel tbody tr td {
+  padding: 7px 14px;
   border-bottom: 1px solid var(--ep-line-1);
 }
 
-#recent-file-panel thead th {
+#recent-file-panel tbody tr td:last-child {
   color: var(--ep-text-secondary);
+}
+
+#recent-file-panel thead th {
+  padding: 4px 14px 6px;
+  color: var(--ep-text-secondary);
+  font-size: 12px;
   border-bottom: 1px solid var(--ep-line-2);
 }
 
-/* 最近文件行悬停：绿微光 */
-#recent-file-panel tbody tr:hover {
-  background-color: var(--ep-hover-green) !important;
-}
-
 #recent-file-panel tbody tr:hover td {
-  color: var(--ep-green-bright);
+  background-color: var(--ep-hover-green);
 }
 
-/* 最近文件行按压：底色加深一档（表格行不支持 transform） */
-#recent-file-panel tbody tr:active {
-  background-color: rgb(119 145 79 / 12%) !important;
+#recent-file-panel tbody tr:hover td:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+#recent-file-panel tbody tr:hover td:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+#recent-file-panel tbody tr:active td {
+  background-color: rgb(119 145 79 / 12%);
 }
 
 .dropdown-menu:not(.megamenu-menu-list) {
@@ -6076,8 +6872,8 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   border-radius: 14px;
   box-shadow: 0 0 0 1px rgb(44 56 48 / 8%),
     inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 8px 20px rgb(40 50 44 / 10%),
-    0 10px 24px rgb(119 145 79 / 4%);
+    0 1px 3px rgb(40 50 44 / 6%),
+    0 6px 16px -4px rgb(40 50 44 / 5%);
   overflow-y: auto;
 }
 
@@ -6268,8 +7064,8 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   background: var(--ep-bg-card);
   box-shadow: 0 0 0 1px rgb(44 56 48 / 8%),
     inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 8px 20px rgb(40 50 44 / 10%),
-    0 10px 24px rgb(119 145 79 / 4%);
+    0 1px 3px rgb(40 50 44 / 6%),
+    0 6px 16px -4px rgb(40 50 44 / 5%);
   scrollbar-gutter: stable;
   font-family: var(--ep-font-body);
   font-size: 17px;
@@ -6826,6 +7622,8 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   background-clip: padding-box;
 }
 
+/* 选项三态：悬停与键盘聚焦用中性灰绿底、文字保持正文色；
+   选中项才用绿染底 + 绿字 + 行尾圆点，两档差距拉开 */
 .ty-preferences select option:checked,
 .ty-preferences select option:checked:hover,
 .ty-preferences select option:checked:focus {
@@ -6837,8 +7635,8 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 
 .ty-preferences select option:hover:not(:checked),
 .ty-preferences select option:focus:not(:checked) {
-  color: var(--ep-green-bright);
-  background-color: rgb(119 145 79 / 12%);
+  color: var(--ep-text);
+  background-color: rgb(44 56 48 / 6%);
   box-shadow: inset 0 2px 0 var(--ep-bg-raised),
     inset 0 -2px 0 var(--ep-bg-raised);
 }
@@ -6863,12 +7661,10 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   box-shadow: 0 0 0 3px rgb(119 145 79 / 13%);
 }
 
-/* 聚焦态只加深描边与柔光环、不改底色：输入框与下拉点击前后底色
-   一致，下拉选择完成后无需点空白处恢复；清掉原生蓝色边框、蓝色
-   投影与 1px 圆角动画 */
+/* 聚焦态只加深描边与柔光环、不改底色：文本输入类点击前后底色
+   一致；清掉原生蓝色边框、蓝色投影与 1px 圆角动画 */
 .ty-preferences input:not([type='checkbox']):not([type='radio']):focus,
-.ty-preferences textarea:focus,
-.ty-preferences select:focus {
+.ty-preferences textarea:focus {
   animation: none !important;
   border-radius: 8px !important;
   border-color: rgb(119 145 79 / 36%) !important;
@@ -6881,19 +7677,39 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   box-shadow: 0 0 0 3px rgb(119 145 79 / 9%) !important;
 }
 
-/* 下拉框聚焦保持同一圆角 */
-.ty-preferences select:focus {
+/* 下拉选取选项后 select 仍保持 :focus，光环会留驻到点空白处；
+   鼠标路径的聚焦一律回到静止外观，选完即复原；键盘聚焦交给
+   下方 :focus-visible 显示光环。限定非展开态，不与 :open 竞争 */
+.ty-preferences select:focus:not(:open) {
+  animation: none !important;
   border-radius: 8px !important;
+  border-color: rgb(44 56 48 / 14%) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%),
+    0 1px 2px rgb(40 50 44 / 8%) !important;
+  outline: 0 !important;
 }
 
-/* 状态层：静止为浮层底色配 14% 深绿细线；
-   悬停 10% 绿底、文字转亮绿；展开 16% 绿底、柔光环加深，
-   箭头翻转为向上指示 */
+.ty-preferences select:focus-visible:not(:open) {
+  border-color: rgb(119 145 79 / 36%) !important;
+  box-shadow: 0 0 0 3px rgb(119 145 79 / 9%) !important;
+}
+
+/* 导出设置的模式下拉是叠在文本框上的隐形覆盖层，聚焦规则不得
+   把静止投影与描边带出来 */
+.ty-preferences .export-config .text-input select:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 状态层：静止为浮层底色配 14% 深绿细线；悬停 10% 绿底、文字
+   转亮绿、投影与静止同款不再清除；展开 16% 绿底、柔光环指示，
+   投影只属于展开列表，箭头翻转为向上指示 */
 .ty-preferences select:hover {
   color: var(--ep-green-bright);
   background-color: var(--ep-hover-green);
   border-color: rgb(119 145 79 / 27%);
-  box-shadow: none;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%),
+    0 1px 2px rgb(40 50 44 / 8%);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M2 2 10 2 6 7Z' fill='%23aecb96'/%3E%3C/svg%3E");
 }
 
@@ -6906,8 +7722,7 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   color: var(--ep-green-bright);
   background-color: color-mix(in srgb, var(--ep-green) 16%, var(--ep-bg-popover));
   border-color: rgb(119 145 79 / 32%);
-  box-shadow: 0 0 0 3px rgb(119 145 79 / 10%),
-    0 4px 12px rgb(40 50 44 / 9%) !important;
+  box-shadow: 0 0 0 3px rgb(119 145 79 / 10%) !important;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M2 6 10 6 6 1Z' fill='%23aecb96'/%3E%3C/svg%3E");
 }
 
@@ -7047,6 +7862,19 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
   transform: scale(0.98);
 }
 
+/* 原生样式给 .btn 的 :focus/:active 写死内阴影与轮廓，点击后
+   留驻到点空白；统一清除，键盘聚焦由 :focus-visible 给光环 */
+.ty-preferences .btn:focus,
+.ty-preferences .btn:active,
+.ty-preferences .btn:focus:active {
+  outline: 0;
+  box-shadow: none;
+}
+
+.ty-preferences .btn:focus-visible {
+  box-shadow: 0 0 0 3px rgb(119 145 79 / 9%);
+}
+
 /* 缩放行的重置按钮与下拉盒共中心：原生 middle 基线定位偏低 3.4px */
 .ty-preferences .row > .cell ~ .btn {
   translate: 0 -3.4px;
@@ -7095,7 +7923,8 @@ body:has(#plugin-window-tab:not(.plugin-common-hidden)):not(.megamenu-opened).on
 
 .ty-preferences .btn-split-group:hover .btn-split-left {
   color: var(--ep-green-bright);
-  box-shadow: none;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%),
+    0 1px 2px rgb(40 50 44 / 8%);
 }
 
 .ty-preferences .btn-split-group:active .btn-split-left {
@@ -8002,10 +8831,50 @@ body.typora-export .outline-content .outline-h6 > .outline-item .outline-label::
 }
 
 
-/* 编辑器把 $$ 块级公式渲染成普通段落里的行内公式 span
-   （p > span.md-inline-math，无 math-block 容器），段落左对齐
-   导致公式贴左；此处让只含一枚行内公式 span 的段落居中，
-   行内公式与文字混排的段落不命中，公式源码编辑态不受影响 */
-#write p:has(> span.md-inline-math:only-child) {
+/* 独行公式（单行 $$..$$ 直接写在正文行）：Typora 按行内公式记
+   录，独占一行的这种公式与块级公式同一节奏；判别特征是
+   only-child（所在段落只有这一枚行内元素），段内混排的行内公
+   式不受影响；阅读态只呈现公式本身，不套代码卡，进入编辑态
+   才出现源码卡，卡底预留实时预览浮层的位置 */
+#write .md-inline-math:only-child {
+  display: block;
+  margin: 0 0 2rem;
   text-align: center;
+}
+
+#write .md-inline-math:only-child mjx-container {
+  margin: 0;
+}
+
+#write .md-inline-math:only-child.md-expand {
+  background: var(--ep-bg-code);
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-code);
+  box-shadow: var(--ep-shadow-embed);
+  padding: 1.25rem 16px 4rem;
+}
+
+/* 行内公式编辑时的实时预览浮层：水平居中于公式块，菱形指针
+   随浮层居中，浮层落在源码卡底部预留区内 */
+body:has(#write .md-inline-math.md-expand:only-child) #math-inline-preview.code-tooltip {
+  pointer-events: none;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+body:has(#write .md-inline-math.md-expand:only-child) #math-inline-preview.code-tooltip {
+  background: var(--ep-bg-tip) !important;
+  border: 1px solid var(--ep-line-2);
+  border-radius: var(--ep-radius-block);
+  box-shadow: var(--ep-shadow-embed);
+  padding: 8px 12px;
+}
+
+#math-inline-preview .md-arrow::after {
+  background: var(--ep-bg-tip) !important;
+}
+
+#math-inline-preview .code-tooltip-content {
+  background: transparent;
+  padding: 0;
 }
