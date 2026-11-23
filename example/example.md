@@ -7,10 +7,6 @@ author: Decamuse
 
 [TOC]
 
-
-
-
-
 ## 二级标题 h2（主绿 章级）
 
 正文段落。**加粗暖黄**、*斜体不染色*、~~删除线弱化~~、`行内代码泡沫青chip`、[超链接绿色](https://typora.io)、<kbd>Ctrl</kbd>+<kbd>D</kbd> 键帽、==mark 高亮暖黄底==。
@@ -60,10 +56,6 @@ author: Decamuse
 > [!CAUTION]
 > caution：灰红提示。
 
-
-
-
-
 ## 表格
 
 蓝色系表头（表格专属色相，抬升亮一档底）：
@@ -81,8 +73,6 @@ author: Decamuse
 | `systemctl list-units` | 列出运行中的服务 | -- |
 | `netsh advfirewall show allprofiles` | 查看防火墙配置 | -- |
 | `wmic process get name,processid` | 列出进程与 PID | -- |
-
-
 
 ## 代码块
 
@@ -112,8 +102,6 @@ flowchart LR
     D --> E
 ```
 
-
-
 bash 代码块（与所有代码块同色同 token）：
 
 ```bash
@@ -121,8 +109,6 @@ bash 代码块（与所有代码块同色同 token）：
 netstat -ano | findstr :443
 tasklist /fi "PID eq 4456"
 ```
-
-
 
 超过十行的代码块（行号恒按两位预留宽度，跨过第十行不横跳）：
 
@@ -183,10 +169,6 @@ $$A = \begin{pmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cd
 
 $$\begin{aligned} \nabla \cdot \mathbf{E} &= \frac{\rho}{\varepsilon_0} \\ \nabla \cdot \mathbf{B} &= 0 \\ \nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t} \\ \nabla \times \mathbf{B} &= \mu_0 \mathbf{J} + \mu_0 \varepsilon_0 \frac{\partial \mathbf{E}}{\partial t} \end{aligned}$$
 
-
-
-
-
 分段函数与极限：
 
 $$g(x) = \begin{cases} \dfrac{\sin x}{x}, & x \neq 0 \\[2ex] 1, & x = 0 \end{cases} \qquad \lim_{n \to \infty} \left(1 + \frac{1}{n}\right)^n = e$$
@@ -223,4 +205,3 @@ $$g(x) = \begin{cases} \dfrac{\sin x}{x}, & x \neq 0 \\[2ex] 1, & x = 0 \end{cas
 [^long]: 长文本脚注：这条脚注的文字足够长，用于验证悬停预览卡在最大宽度处换行的排版效果，纸面上的行距与留白以此为准，再补一段文字让它超过两行，观察换行后的边缘对齐。
 [^rich]: 含富文本的脚注：验证 [外部链接](https://typora.io)、`行内代码` 、*斜体不染色*、~~删除线弱化~~、<kbd>Ctrl</kbd>+<kbd>D</kbd> 键帽、==mark 高亮暖黄底== 与 **加粗** 在悬停预览卡内的样式。
 [^math]: 含公式的脚注：验证悬停预览卡内 $E = mc^2$ 的主题绿渲染。
-
